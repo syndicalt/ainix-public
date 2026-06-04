@@ -43,4 +43,4 @@ Ainix is not currently a consumer product, public SDK, operating-system replacem
 
 ## Visual Assets
 
-Concept renders are provided to communicate direction. They should be described as future UI concepts or product vision renders, not screenshots of the current runtime.
+Concept renders are provided as PNG assets to communicate direction. They should be described as future UI concepts or product vision renders, not screenshots of the current runtime.
