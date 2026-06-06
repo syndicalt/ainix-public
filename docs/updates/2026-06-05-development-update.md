@@ -73,6 +73,13 @@ projects imported content into a canvas/shell snapshot, creates a typed
 context-connection proposal, approves/applies it, and verifies the resulting
 event chain.
 
+The crisp technical artifact here is the primblocks-to-shell chain:
+[Primblocks and canonical data](../architecture/primblocks.md) shows a current
+demo excerpt where `pipeline-note.md` becomes a canonical `block_<blake3>`
+record, a lattice `file_artifact` node, a `backed_by_block` relationship, a
+shell canvas object, and a cited context reference for an agent-proposed
+connection.
+
 ## Why This Architecture Matters
 
 One target workflow is a relationship and pipeline memory agent:

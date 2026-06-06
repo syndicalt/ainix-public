@@ -46,6 +46,7 @@ The first implementation runs above existing operating systems. The long-term ar
 ## Public Materials
 
 - [Architecture overview](docs/architecture/overview.md)
+- [Primblocks and canonical data](docs/architecture/primblocks.md)
 - [SPEC excerpt](docs/spec/spec-excerpt.md)
 - [Roadmap](docs/roadmap/roadmap.md)
 - [Development updates](docs/updates/README.md)

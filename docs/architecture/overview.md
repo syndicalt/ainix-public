@@ -23,6 +23,7 @@ The substrate is intended to make agent work explicit and auditable instead of f
 Key primitives:
 
 - `identity`: cryptographic actors for users, devices, agents, and shared spaces
+- `primblocks`: canonical byte-preserving blocks for imported source material
 - `capabilities`: explicit, scoped authority grants
 - `events`: append-only history of meaningful mutations and actions
 - `lattice`: versioned semantic state with provenance
@@ -43,3 +44,6 @@ Ainix is not only an application runtime. The hosted version should preserve the
 
 The short-term goal is proof of the primitive model. The long-term goal is a general-purpose agentic OS.
 
+See [Primblocks and canonical data](primblocks.md) for the current public-safe
+technical artifact showing how a file becomes a canonical block, lattice node,
+shell object, and cited context reference.
