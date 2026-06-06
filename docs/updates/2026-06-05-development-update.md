@@ -15,6 +15,9 @@ path.
 - A local Rust `ainix` CLI and runtime substrate for identity, capabilities,
   event provenance, lattice import/query, canvas records, agents, extensions,
   devices, sessions, and system-boundary requests.
+- Primblocks-backed canonical import records that preserve source bytes as
+  `block_<blake3>` content blocks before Ainix derives lattice nodes, semantic
+  indexes, shell projections, or agent context.
 - Typed broker boundaries for session, shell, model, context, storage, event,
   canvas, presence, collaboration, extension, and artifact operations.
 - JSON at the CLI/local API edge, with typed DTOs inside the runtime boundary.
