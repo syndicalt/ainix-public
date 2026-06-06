@@ -2,6 +2,21 @@
 
 This roadmap is intentionally high-level. Milestone details remain in the private implementation repo until the runtime is ready for broader review.
 
+## Current Checkpoint
+
+As of the 2026-06-05 internal roadmap checkpoint, the private implementation has
+validated the hosted userspace substrate through brokered runtime authority,
+event provenance, semantic lattice import, persistent canvas projection, hosted
+shell UI contracts, spatial renderer adapters, and public-preview release-gate
+tooling.
+
+The project is still private preview only. The public-preview release claim is
+`not_claimed` until final release controls, clean release-candidate validation,
+external evidence, and announcement preflight are complete.
+
+See the current public-safe update:
+[2026-06-05 Development Update](../updates/2026-06-05-development-update.md).
+
 ## Phase 1: Hosted Runtime
 
 Validate the local-first agentic substrate above existing operating systems.
@@ -13,7 +28,9 @@ Validate the local-first agentic substrate above existing operating systems.
 - Agent delegation
 - Extension execution
 - Local API and CLI
-- Early shell/canvas experiments
+- Hosted shell/canvas prototype
+- Renderer-neutral canvas projection with DOM and opt-in Three.js adapters
+- Single-executable semantic shell demo scaffold
 
 ## Phase 2: Private UAT
 
@@ -24,7 +41,8 @@ Exercise the runtime with real workflows before expanding the audience.
 - Dogfood workflows
 - Crash/replay recovery checks
 - Security review of extension trust and local API transport
-- Demo video/GIF from real runtime behavior
+- Prototype screenshots from real hosted shell behavior
+- Demo video/GIF from real runtime behavior when release controls allow it
 
 ## Phase 3: Public Preview Surface
 
@@ -32,7 +50,8 @@ Expose a limited developer-facing story without publishing the full private impl
 
 - Public explainer material
 - Architecture excerpts
-- Demo media
+- Development updates and prototype screenshots
+- Demo media from bounded runtime flows
 - Selected docs
 - Preview invitation path
 - Partner/reference-device outreach
@@ -58,4 +77,3 @@ After the hosted runtime proves the primitive model, begin deeper native-system 
 - Storage substrate
 - Device boundary
 - Kernel and scheduler research
-

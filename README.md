@@ -11,8 +11,23 @@ This public repository is intentionally limited. It contains high-level architec
 - Research prototype
 - Private preview only
 - Runtime implementation is private
-- Current work focuses on the hosted userspace substrate
-- Future UI renders are conceptual, not current product screenshots
+- Current private implementation has completed a major hosted-runtime roadmap
+  checkpoint
+- Hosted shell UI and spatial renderer prototype screenshots are available as
+  private-preview development captures
+- Future GUI renders remain conceptual unless explicitly labeled as current
+  prototype screenshots
+
+## Latest Development Update
+
+[2026-06-05: Roadmap checkpoint, semantic shell demo, and spatial canvas baseline](docs/updates/2026-06-05-development-update.md)
+
+The current internal checkpoint includes brokered runtime authority, event
+provenance, semantic lattice import, persistent canvas projection, hosted shell
+UI contracts, an opt-in Three.js renderer adapter, and a single-executable
+semantic shell demo path. The public-preview release claim remains
+`not_claimed` until release controls, clean release-candidate validation, and
+external evidence are complete.
 
 ## What Ainix Is Exploring
 
@@ -33,6 +48,7 @@ The first implementation runs above existing operating systems. The long-term ar
 - [Architecture overview](docs/architecture/overview.md)
 - [SPEC excerpt](docs/spec/spec-excerpt.md)
 - [Roadmap](docs/roadmap/roadmap.md)
+- [Development updates](docs/updates/README.md)
 - [Demo media note](docs/demo/README.md)
 - [Concept render captions](assets/concept-renders/README.md)
 - [GUI concept captions](assets/gui-concepts/README.md)
@@ -44,3 +60,7 @@ Ainix is not currently a consumer product, public SDK, operating-system replacem
 ## Visual Assets
 
 Concept renders are provided as PNG assets to communicate direction. They should be described as future UI concepts or product vision renders, not screenshots of the current runtime.
+
+Current prototype screenshots live under `assets/development-updates/` and must
+be labeled as private-preview development captures, not production GUI or public
+release screenshots.
