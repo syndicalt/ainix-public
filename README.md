@@ -92,6 +92,7 @@ See [docs/roadmap/roadmap.md](docs/roadmap/roadmap.md) for detail.
 
 ## Public materials
 
+- [Article: From Theater to First Blood](docs/articles/2026-06-12-from-theater-to-first-blood.md)
 - [Architecture overview](docs/architecture/overview.md)
 - [Primblocks: canonical data](docs/architecture/primblocks.md)
 - [Vision / SPEC excerpt](docs/spec/spec-excerpt.md)
