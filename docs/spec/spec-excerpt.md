@@ -1,6 +1,7 @@
-# SPEC Excerpt
+# Vision Excerpt
 
-This excerpt is adapted from the private Ainix SPEC and is provided for public positioning only.
+This excerpt is adapted from the Ainix design notes and is provided for public
+positioning. It describes direction and principles, not implementation detail.
 
 ## Mission
 

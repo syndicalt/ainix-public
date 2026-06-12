@@ -1,79 +1,62 @@
 # Roadmap
 
-This roadmap is intentionally high-level. Milestone details remain in the private implementation repo until the runtime is ready for broader review.
+This roadmap is intentionally high-level. Detailed execution plans live in the
+private implementation repository while the runtime matures.
 
-## Current Checkpoint
+The strategy is simple: **prove the agent-native computing model as a hosted
+userspace layer on existing operating systems first, then move lower in the
+stack only where the hosted layer proves deeper enforcement is required.**
 
-As of the 2026-06-05 internal roadmap checkpoint, the private implementation has
-validated the hosted userspace substrate through brokered runtime authority,
-event provenance, semantic lattice import, persistent canvas projection, hosted
-shell UI contracts, spatial renderer adapters, and public-preview release-gate
-tooling.
-
-The project is still private preview only. The public-preview release claim is
-`not_claimed` until final release controls, clean release-candidate validation,
-external evidence, and announcement preflight are complete.
-
-See the current public-safe update:
-[2026-06-05 Development Update](../updates/2026-06-05-development-update.md).
-
-## Phase 1: Hosted Runtime
+## 1. Hosted runtime — now
 
 Validate the local-first agentic substrate above existing operating systems.
 
-- Identity and delegation
-- Capability kernel
-- Event provenance
-- Semantic lattice
-- Agent delegation
-- Extension execution
-- Local API and CLI
-- Hosted shell/canvas prototype
-- Renderer-neutral canvas projection with DOM and opt-in Three.js adapters
-- Single-executable semantic shell demo scaffold
+- Cryptographic identity and delegated authority
+- Capability and policy enforcement
+- Append-only event provenance
+- Semantic lattice over canonical, byte-preserving source records
+- Agent and extension execution through typed brokers
+- Local API and CLI control surfaces
+- A hosted canvas-shell prototype with a renderer-neutral projection layer
 
-## Phase 2: Private UAT
+This stage is working internally today. Its surface is kept honest: every
+exposed command does real work.
 
-Exercise the runtime with real workflows before expanding the audience.
+## 2. First real agent — next
 
-- Clean local install path
-- Repeatable smoke tests
-- Dogfood workflows
-- Crash/replay recovery checks
-- Security review of extension trust and local API transport
-- Prototype screenshots from real hosted shell behavior
-- Demo video/GIF from real runtime behavior when release controls allow it
+Drive one full agent loop with a real local model, end to end.
 
-## Phase 3: Public Preview Surface
+- A local model adapter under capability and budget control
+- Intent → context query → inference → cited proposal → human approval → apply
+- Full provenance for every inference and tool call
+- Budget and cancellation guarantees
 
-Expose a limited developer-facing story without publishing the full private implementation.
+This is the phase that answers the project's central question: are the
+identity / capability / proposal contracts ergonomic under a real agent?
 
-- Public explainer material
-- Architecture excerpts
-- Development updates and prototype screenshots
-- Demo media from bounded runtime flows
-- Selected docs
-- Preview invitation path
-- Partner/reference-device outreach
+## 3. Supervised OS — then
 
-## Phase 4: Canvas Shell
+Turn the runtime into a real agent supervisor.
 
-Move beyond CLI/admin surfaces toward the primary user experience.
+- Asynchronous, multi-session daemon
+- Sandboxed agent sessions with kernel-enforced boundaries
+- Durable storage with rebuildable indexes
+- A scheduler with budget accounting and preemption
 
-- Infinite canvas shell
-- Touch-first control surface
-- Agent presence and delegation view
-- Semantic node/lattice navigation
-- Cross-device continuity
-- Accessibility and offline-first flows
+## 4. Canvas & native — later
 
-## Phase 5: Native OS Research
+Bring the primary user experience forward, and research native-system work.
 
-After the hosted runtime proves the primitive model, begin deeper native-system work.
+- Infinite canvas shell as the primary surface, not an admin panel
+- Touch-first control, agent presence, timeline replay, private sharing
+- Cross-device continuity; eventually spatial (AR/VR) work surfaces
+- Selective native-system research: session manager, shell/compositor boundary,
+  storage substrate, and kernel/scheduler work where it earns its place
 
-- Session manager
-- Shell/compositor boundary
-- IPC/syscall-style contracts
-- Storage substrate
-- Device boundary
-- Kernel and scheduler research
+## What this roadmap does not promise
+
+No custom kernel, full hardware driver stack, production AR interface, public
+agent marketplace, or universal compatibility layer in the near term. The focus
+is proving the runtime substrate and then the first real agent loop.
+
+See the latest [development updates](../updates/README.md) for current status.

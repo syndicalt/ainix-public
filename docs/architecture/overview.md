@@ -1,49 +1,53 @@
 # Architecture Overview
 
-Ainix is organized as a staged operating-system project.
+Ainix is organized as a staged operating-system project: a hosted semantic-OS
+substrate today, with a deliberate path toward native-system work later.
 
-## Hosted Userspace Phase
+## Hosted userspace stage
 
-The current private implementation is a Rust userspace runtime that runs on existing host operating systems. This phase validates the primitive model without taking on kernel, driver, compositor, or hardware support too early.
+The current implementation is a Rust userspace runtime that runs on existing host
+operating systems. This stage validates the primitive model without taking on
+kernel, driver, compositor, or hardware support too early.
 
 Core runtime concerns:
 
-- Identity and delegation
+- Identity and delegated authority
 - Capability and policy enforcement
 - Event log and provenance chain
 - Semantic lattice storage
 - Agent and extension execution
 - Local API and CLI control surfaces
-- Hosted shell/canvas experiments
+- A hosted canvas-shell prototype
 
-## Semantic OS Substrate
+## Semantic OS substrate
 
-The substrate is intended to make agent work explicit and auditable instead of forcing agents to scrape arbitrary app windows or infer state from unstructured files.
+The substrate makes agent work explicit and auditable instead of forcing agents
+to scrape arbitrary application windows or infer state from unstructured files.
 
 Key primitives:
 
-- `identity`: cryptographic actors for users, devices, agents, and shared spaces
-- `primblocks`: canonical byte-preserving blocks for imported source material
-- `capabilities`: explicit, scoped authority grants
-- `events`: append-only history of meaningful mutations and actions
-- `lattice`: versioned semantic state with provenance
-- `agents`: delegated computational actors
-- `extensions`: brokered tools with policy and replay protection
-- `canvas`: a future shell surface for people, agents, knowledge, and work
+- **identity** — cryptographic actors for users, devices, agents, and shared spaces
+- **canonical blocks** — byte-preserving records for imported source material
+  (see [Primblocks](primblocks.md))
+- **capabilities** — explicit, scoped authority grants; no ambient power
+- **events** — an append-only history of meaningful mutations and actions
+- **lattice** — versioned semantic state with provenance
+- **agents** — delegated computational actors
+- **extensions** — brokered tools with policy and replay protection
+- **canvas** — the future shell surface for people, agents, knowledge, and work
 
-## Native OS Trajectory
+## Native OS trajectory
 
-Ainix is not only an application runtime. The hosted version should preserve the option to move below the userspace boundary later:
+Ainix is not only an application runtime. The hosted version preserves the option
+to move below the userspace boundary later:
 
 - Native shell and session manager
 - System IPC contracts
 - Storage and event substrate
-- Capability security boundary
-- Device/session abstractions
+- Capability security boundary enforced by the kernel
+- Device and session abstractions
 - Kernel and scheduler research
 
-The short-term goal is proof of the primitive model. The long-term goal is a general-purpose agentic OS.
-
-See [Primblocks and canonical data](primblocks.md) for the current public-safe
-technical artifact showing how a file becomes a canonical block, lattice node,
-shell object, and cited context reference.
+The short-term goal is proof of the primitive model. The long-term goal is a
+general-purpose agentic OS. This public overview stays at the level of roles and
+direction; mechanism-level design lives in the private implementation repository.

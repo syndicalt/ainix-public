@@ -1,12 +1,19 @@
 # Concept Renders
 
-These assets are public-facing concept renders for explaining Ainix. They are not screenshots of the current runtime.
+Generated explainer diagrams for communicating Ainix. **These are diagrams, not
+screenshots of the runtime.** They are reproducible via
+[`scripts/render-concepts.py`](../../scripts/render-concepts.py).
 
 ## Files
 
-- `01-m6-runtime-proof.png`: runtime proof card for the private M6 milestone
-- `02-ainix-architecture.png`: high-level architecture diagram
-- `03-future-canvas-control-surface.png`: future canvas/control-surface concept
-- `04-hosted-to-native-roadmap.png`: hosted-to-native roadmap visual
+- `01-runtime-today.png` — what the hosted runtime does today; the commands shown
+  are real and do real work.
+- `02-ainix-architecture.png` — high-level layered architecture (hosted substrate,
+  native trajectory).
+- `03-future-canvas-control-surface.png` — a **future** canvas/control-surface
+  concept. Not current software.
+- `04-hosted-to-native-roadmap.png` — the hosted-to-native roadmap.
 
-Use these with explicit labels such as "future UI concept", "architecture concept", or "private prototype milestone".
+Use these with explicit labels such as "architecture diagram", "roadmap", or
+"future UI concept". Only `01-runtime-today.png` depicts current behavior, and it
+does so as a stylized diagram of real commands — not a literal screenshot.
