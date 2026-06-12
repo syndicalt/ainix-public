@@ -2,6 +2,8 @@
 
 *How Ainix stopped describing readiness and started earning it.*
 
+![From Theater to First Blood — one real local agent loop: intent → inference → proposal → approval → apply, authority-scoped, cited, traceable to the source bytes.](../../assets/press/first-blood-x-header.png)
+
 Every ambitious systems project reaches a moment where it has to choose between
 looking finished and being honest. Ainix reached that moment, and chose honesty —
 twice.
