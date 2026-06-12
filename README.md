@@ -39,8 +39,13 @@ authoritative and every artifact traceable.
   operate through explicit grants over specific resources.
 - **Append-only event provenance** — meaningful actions are recorded so users can
   inspect what happened and why.
+- **Canonical data (primblocks)** — a byte-exact, content-addressed base-truth
+  layer: source files import to deterministic blocks and export back identically,
+  with adversarial path/symlink safety and identity that ignores volatile
+  filesystem metadata. Everything derived stays rebuildable from it.
+  See [primblocks](docs/architecture/primblocks.md).
 - **Semantic lattice** — versioned, queryable, provenance-rich knowledge state,
-  built over canonical byte-preserving source records.
+  built over those canonical records.
 - **Local-first operation** — starts without a cloud account and keeps private
   work on the user's machine by default.
 - **Model-aware policy** — local and remote models are governed by privacy class,
