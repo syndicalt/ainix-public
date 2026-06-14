@@ -1,0 +1,353 @@
+<!doctype html><html lang="en" data-theme="dark"><head>
+<meta charset="utf-8"><title>Ainix — Event Proof</title>
+<link rel="stylesheet" href="tokens.css"><link rel="stylesheet" href="app.css">
+<style>
+body {
+  padding: 20px;
+  display: grid;
+  place-items: center;
+  background: radial-gradient(120% 120% at 30% 0%, oklch(0.26 0.03 264) 0%, oklch(0.18 0.012 264) 55%);
+}
+
+/* dimmed timeline behind the proof drawer */
+.timeline-backdrop {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+}
+.timeline-backdrop::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--bg);
+  opacity: 0.72;
+  pointer-events: none;
+  z-index: 1;
+}
+.backdrop-scroll {
+  padding: var(--s4);
+  overflow: hidden;
+  height: 100%;
+}
+
+/* the proof drawer: fixed right panel */
+.proof-drawer {
+  width: 520px;
+  background: var(--surface-1);
+  border-left: 1px solid var(--hairline);
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  box-shadow: var(--shadow-3);
+}
+.drawer-head {
+  padding: var(--s3) var(--s4) var(--s2);
+  border-bottom: 1px solid var(--hairline);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s2);
+}
+.drawer-title-row {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--s2);
+  justify-content: space-between;
+}
+.drawer-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--s3) var(--s4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s3);
+}
+.drawer-footer {
+  padding: var(--s3) var(--s4);
+  border-top: 1px solid var(--hairline);
+  display: flex;
+  gap: var(--s2);
+  align-items: center;
+}
+
+/* kv grid wider for proof drawer */
+.drawer-kv {
+  display: grid;
+  grid-template-columns: 108px 1fr;
+  gap: 7px var(--s2);
+  font-size: var(--t-sm);
+}
+.drawer-kv dt { color: var(--text-3); padding-top: 1px; }
+.drawer-kv dd { color: var(--text); word-break: break-all; }
+.drawer-kv dd.mono { font-family: var(--mono); font-size: var(--t-xs); color: var(--text-2); }
+.drawer-kv dd .chip { vertical-align: middle; }
+
+/* honest note */
+.honest-note {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--s2);
+  padding: var(--s2) var(--s3);
+  background: var(--surface-2);
+  border-radius: var(--r-sm);
+  border-left: 3px solid var(--text-4);
+  font-size: var(--t-sm);
+  color: var(--text-3);
+  line-height: var(--lh);
+}
+.honest-note svg { flex: none; margin-top: 2px; color: var(--text-4); }
+
+/* proof block override for drawer: slightly wider label column */
+.proof-drawer .proof .h span:first-child { width: 96px; }
+
+/* section divider with label */
+.section-div {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+}
+.section-div .ln {
+  flex: 1;
+  height: 1px;
+  background: var(--hairline);
+}
+
+/* diff block inline */
+.diff-inline {
+  font-family: var(--mono);
+  font-size: var(--t-xs);
+  background: var(--bg);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-sm);
+  overflow: hidden;
+}
+.diff-inline .di-fname {
+  padding: 5px var(--s2);
+  background: var(--surface-2);
+  color: var(--text-3);
+  border-bottom: 1px solid var(--hairline);
+  font-size: var(--t-2xs);
+}
+.diff-inline .di-row {
+  display: grid;
+  grid-template-columns: 24px 1fr;
+  line-height: 1.6;
+}
+.diff-inline .di-row .sig { padding: 0 6px; color: var(--text-4); user-select: none; }
+.diff-inline .di-row .tx { padding: 0 8px; white-space: pre; }
+.diff-inline .di-row.add { background: oklch(0.78 0.15 158 / 0.12); }
+.diff-inline .di-row.add .tx { color: oklch(0.86 0.13 158); }
+.diff-inline .di-row.add .sig { color: oklch(0.72 0.13 158); }
+.diff-inline .di-row.del { background: oklch(0.68 0.20 24 / 0.11); }
+.diff-inline .di-row.del .tx { color: oklch(0.80 0.14 24); }
+.diff-inline .di-row.del .sig { color: oklch(0.68 0.16 24); }
+.diff-inline .di-row.ctx .tx { color: var(--text-4); }
+</style>
+</head><body>
+<script src="sprite.js"></script>
+
+<div class="window">
+  <!-- titlebar -->
+  <div class="titlebar">
+    <div class="traffic"><i class="r"></i><i class="y"></i><i class="g"></i></div>
+    <div class="brand"><span class="glyph"><svg class="i sm" style="stroke:var(--on-accent)"><use href="#ic-shield"/></svg></span> Ainix</div>
+    <div class="spacer"></div>
+    <div class="cmd"><svg class="i sm"><use href="#ic-cmd"/></svg> Ask, or run a verified action…<span class="kbd">⌘K</span></div>
+    <div class="spacer"></div>
+    <svg class="i" style="color:var(--text-3)"><use href="#ic-search"/></svg>
+    <div class="chip neutral" style="height:26px"><svg class="i sm"><use href="#ic-user"/></svg> you</div>
+  </div>
+
+  <div class="body">
+    <!-- nav rail -->
+    <nav class="rail">
+      <div class="nav"><svg class="i"><use href="#ic-runs"/></svg> Runs</div>
+      <div class="nav"><svg class="i"><use href="#ic-approve"/></svg> Approvals <span class="count warn">2</span></div>
+      <div class="nav active"><svg class="i"><use href="#ic-prov"/></svg> Provenance</div>
+      <div class="nav"><svg class="i"><use href="#ic-policy"/></svg> Policies</div>
+      <div class="nav"><svg class="i"><use href="#ic-artifact"/></svg> Artifacts</div>
+      <div class="nav"><svg class="i"><use href="#ic-session"/></svg> Sessions</div>
+      <div class="grp">Recent runs</div>
+      <div class="nav" style="font-weight:500"><svg class="i" style="color:var(--verified)"><use href="#ic-check"/></svg> #4126 index reindex</div>
+      <div class="nav" style="font-weight:500;color:var(--text)"><svg class="i" style="color:var(--accent)"><use href="#ic-dot"/></svg> #4127 RUSTSEC patch</div>
+      <div class="nav" style="font-weight:500"><svg class="i" style="color:var(--verified)"><use href="#ic-check"/></svg> #4125 fmt sweep</div>
+      <div class="spacer"></div>
+      <div class="nav"><svg class="i"><use href="#ic-undo"/></svg> Time-travel</div>
+    </nav>
+
+    <!-- content: dimmed timeline + proof drawer side by side -->
+    <div class="content" style="flex-direction:row;overflow:hidden">
+
+      <!-- DIMMED TIMELINE BACKDROP -->
+      <div class="timeline-backdrop">
+        <div class="backdrop-scroll">
+          <!-- toolbar shown dimmed -->
+          <div style="display:flex;align-items:center;gap:var(--s2);margin-bottom:var(--s4);opacity:0.5">
+            <div class="stack" style="gap:2px">
+              <div style="font-size:var(--t-lg);font-weight:600">Run #4127 · Resolve RUSTSEC-2026-0041</div>
+              <div style="font-size:var(--t-sm);color:var(--text-3)">ainix-api · interactive · started 13:58:02</div>
+            </div>
+            <div class="spacer"></div>
+            <div class="seg" style="opacity:0.6"><button class="on">Timeline</button><button>Graph</button><button>Diffs</button></div>
+          </div>
+
+          <!-- timeline rows (dimmed via overlay) -->
+          <div class="timeline" style="opacity:0.45">
+            <div class="evt">
+              <div class="ts">13:58:02.114</div>
+              <div class="gut"><div class="node verified"></div></div>
+              <div class="main"><div class="line1"><span class="actor human">you</span><span class="act">requested</span></div>
+                <div class="detail">"Resolve advisory RUSTSEC-2026-0041 in ainix-api"</div></div>
+              <div class="right"><span class="badge-int"><svg class="i sm"><use href="#ic-lock"/></svg> signed</span></div>
+            </div>
+            <div class="evt">
+              <div class="ts">13:58:03.901</div>
+              <div class="gut"><div class="node accent"></div></div>
+              <div class="main"><div class="line1"><span class="actor agent">agent</span><span class="act">planned</span><span class="chip neutral">4 steps</span></div>
+                <div class="detail">read manifest → bump dependency → patch call site → verify build &amp; tests</div></div>
+              <div class="right"><span class="chip accent"><svg class="i sm"><use href="#ic-check"/></svg> plan approved</span></div>
+            </div>
+            <div class="evt depth1">
+              <div class="ts">13:58:05.220</div>
+              <div class="gut"><div class="node"></div></div>
+              <div class="main"><div class="line1"><span class="actor agent">agent</span><span class="act">read</span><span class="target">crates/ainix-api/Cargo.toml</span></div></div>
+              <div class="right"><span class="badge-int"><svg class="i sm"><use href="#ic-check"/></svg></span></div>
+            </div>
+            <div class="evt depth1">
+              <div class="ts">13:58:11.402</div>
+              <div class="gut"><div class="node review"></div></div>
+              <div class="main"><div class="line1"><span class="actor agent">agent</span><span class="act">proposed</span><span class="target">Cargo.toml</span><span class="chip review"><span class="dot"></span>edit · reviewed</span></div>
+                <div class="detail">bump <code>openssl 0.10.64 → 0.10.72</code></div></div>
+            </div>
+            <div class="evt depth1">
+              <div class="ts">13:58:24.310</div>
+              <div class="gut"><div class="node verified"></div></div>
+              <div class="main"><div class="line1"><span class="actor agent">agent</span><span class="act">applied</span><span class="target">Cargo.toml</span></div></div>
+              <div class="right"><span class="badge-int"><svg class="i sm"><use href="#ic-check"/></svg> reversible</span></div>
+            </div>
+            <!-- SELECTED EVENT — highlighted through the dimming -->
+            <div class="evt sel depth1" style="position:relative;z-index:2;opacity:1">
+              <div class="ts">13:59:02.551</div>
+              <div class="gut"><div class="node verified"></div></div>
+              <div class="main"><div class="line1"><span class="actor agent">agent</span><span class="act">applied</span><span class="target">src/tls.rs</span><span class="chip verified"><span class="dot"></span>+3 −1</span></div>
+                <div class="detail">adapt to renamed <code>SslVerifyMode</code> API · proposal #2 approved 13:59:40</div></div>
+              <div class="right"><span class="chip accent"><svg class="i sm"><use href="#ic-eye"/></svg> proof open</span></div>
+            </div>
+            <div class="evt depth1">
+              <div class="ts">14:00:12.030</div>
+              <div class="gut"><div class="node verified"></div></div>
+              <div class="main"><div class="line1"><span class="actor agent">agent</span><span class="act">ran</span><span class="target">cargo test -p ainix-api</span><span class="chip verified"><span class="dot"></span>41 passed</span></div></div>
+              <div class="right"><span class="badge-int"><svg class="i sm"><use href="#ic-check"/></svg></span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PROOF DRAWER -->
+      <aside class="proof-drawer">
+        <!-- drawer header -->
+        <div class="drawer-head">
+          <div class="drawer-title-row">
+            <div class="stack" style="gap:3px">
+              <div class="section-label">Event proof · seq 8,431</div>
+              <h3 style="font-size:var(--t-md);line-height:var(--lh-tight)">agent applied edit to<br><span class="mono" style="font-size:0.88em;color:var(--accent)">crates/ainix-api/src/tls.rs</span></h3>
+            </div>
+            <div class="flex gap2">
+              <span class="chip verified"><svg class="i sm"><use href="#ic-check"/></svg> VERIFIED</span>
+            </div>
+          </div>
+
+          <!-- friendly / signed record toggle -->
+          <div class="seg" style="align-self:flex-start">
+            <button class="on">Friendly</button>
+            <button>Signed record</button>
+          </div>
+        </div>
+
+        <!-- drawer scroll body -->
+        <div class="drawer-scroll">
+
+          <!-- STRUCTURED RECORD -->
+          <div class="stack gap2">
+            <div class="section-label">Record</div>
+            <dl class="drawer-kv">
+              <dt>Actor</dt>
+              <dd>agent <span class="chip neutral" style="margin-left:4px;font-size:var(--t-2xs)">claude-opus-4-5</span></dd>
+
+              <dt>Timestamp</dt>
+              <dd class="mono">2026-06-13T13:59:02.551Z</dd>
+
+              <dt>Action</dt>
+              <dd>applied</dd>
+
+              <dt>Target</dt>
+              <dd class="mono">crates/ainix-api/src/tls.rs</dd>
+
+              <dt>Inputs</dt>
+              <dd>proposal #2 <span style="color:var(--text-3);font-size:var(--t-xs)">(ref: prop_9f2c…a1, approved by you at 13:59:40Z)</span></dd>
+
+              <dt>Outputs</dt>
+              <dd>3 lines added, 1 removed <span style="color:var(--text-3);font-size:var(--t-xs)">(hash-committed in thisHash)</span></dd>
+
+              <dt>Sequence #</dt>
+              <dd class="mono">8,431</dd>
+
+              <dt>Event ID</dt>
+              <dd class="mono" style="color:var(--accent)">evt_8431…d7</dd>
+            </dl>
+          </div>
+
+          <!-- DIFF -->
+          <div class="diff-inline">
+            <div class="di-fname">crates/ainix-api/src/tls.rs</div>
+            <div class="di-row ctx"><div class="sig"> </div><div class="tx"> fn configure_tls(cfg: &amp;TlsConfig) -&gt; Result&lt;SslContext&gt; {</div></div>
+            <div class="di-row del"><div class="sig">−</div><div class="tx">     let verify = SslVerifyMode::PEER;</div></div>
+            <div class="di-row add"><div class="sig">+</div><div class="tx">     let verify = openssl::ssl::SslVerifyMode::PEER;</div></div>
+            <div class="di-row add"><div class="sig">+</div><div class="tx">     let min_proto = openssl::ssl::SslVersion::TLS1_2;</div></div>
+            <div class="di-row add"><div class="sig">+</div><div class="tx">     ctx_builder.set_min_proto_version(Some(min_proto))?;</div></div>
+            <div class="di-row ctx"><div class="sig"> </div><div class="tx">     ctx_builder.set_verify(verify);</div></div>
+          </div>
+
+          <!-- SECTION DIVIDER -->
+          <div class="section-div">
+            <div class="ln"></div>
+            <div class="section-label">Cryptographic proof</div>
+            <div class="ln"></div>
+          </div>
+
+          <!-- THE HEAVY CRYPTO PROOF BLOCK -->
+          <div class="proof">
+            <div class="h"><span>prevHash</span><span class="mono">sha256:a3f9c2…8b41d (evt_8430…e9)</span></div>
+            <div class="h"><span>thisHash</span><span class="mono">sha256:7e2d14…f3a02 (this event)</span></div>
+            <div class="h"><span>signature</span><span class="mono">ed25519:MEQCIBn…xK7a</span></div>
+            <div class="h"><span>signer key</span><span class="mono">dev@ainix · key id 9F2C…A1</span></div>
+            <div class="h" style="margin-top:2px"><span>anchor root</span><span class="mono">merkle:5c8a3f…d901 (transparency log, slot 4,127)</span></div>
+            <div class="h"><span>proof path</span><span class="mono">left:a2f1… right:9b3c… root:5c8a3f…</span></div>
+            <div class="h" style="margin-top:var(--s1)">
+              <span></span>
+              <span class="ok" style="font-weight:700;font-size:var(--t-sm)">VERIFICATION: PASS — signature valid · chain intact · Merkle inclusion confirmed</span>
+            </div>
+          </div>
+
+          <!-- HONEST NOTE -->
+          <div class="honest-note">
+            <svg class="i"><use href="#ic-shield"/></svg>
+            <span>
+              <b style="color:var(--text-2)">What this proof attests:</b> custody and identity — that this exact event was recorded by this signer in this order. <b style="color:var(--text-2)">It does NOT attest that the action was correct</b> or that the change was beneficial. A valid signature only means the record was not tampered with after signing.
+            </span>
+          </div>
+
+        </div>
+
+        <!-- drawer footer -->
+        <div class="drawer-footer">
+          <button class="btn sm"><svg class="i sm"><use href="#ic-link"/></svg> Copy event id</button>
+          <button class="btn sm"><svg class="i sm"><use href="#ic-eye"/></svg> Verify independently</button>
+          <div class="spacer"></div>
+          <button class="btn sm ghost"><svg class="i sm"><use href="#ic-arrow"/></svg> Open in timeline</button>
+        </div>
+      </aside>
+
+    </div>
+  </div>
+</div>
+</body></html>

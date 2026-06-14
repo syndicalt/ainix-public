@@ -3,60 +3,62 @@
 This roadmap is intentionally high-level. Detailed execution plans live in the
 private implementation repository while the runtime matures.
 
-The strategy is simple: **prove the agent-native computing model as a hosted
-userspace layer on existing operating systems first, then move lower in the
-stack only where the hosted layer proves deeper enforcement is required.**
+The strategy is simple: **prove the verifiable agent loop as a hosted userspace
+layer on existing operating systems, make it legible through the control surface,
+and move lower in the stack only where the hosted layer proves deeper enforcement
+is required.**
 
-## 1. Hosted runtime — now
+## 1. Hosted runtime — done / now
 
 Validate the local-first agentic substrate above existing operating systems.
 
 - Cryptographic identity and delegated authority
 - Capability and policy enforcement
-- Append-only event provenance
-- Semantic lattice over canonical, byte-preserving source records
+- Append-only, signed event provenance
+- Semantic state over canonical, byte-preserving source records
 - Agent and extension execution through typed brokers
+- An asynchronous, multi-session supervisor: a budget-aware scheduler
+  (provider-slot admission, cooperative preemption) and real mid-flight cancellation
 - Local API and CLI control surfaces
-- A hosted canvas-shell prototype with a renderer-neutral projection layer
 
-This stage is working internally today. Its surface is kept honest: every
-exposed command does real work.
+This stage is working internally today. Its surface is kept honest: every exposed
+command does real work.
 
-## 2. First real agent — next
+## 2. The verify surface — next
 
-Drive one full agent loop with a real local model, end to end.
+Make the wedge visible. Build the observability half on the real signed event log.
 
-- A local model adapter under capability and budget control
-- Intent → context query → inference → cited proposal → human approval → apply
-- Full provenance for every inference and tool call
-- Budget and cancellation guarantees
+- The run timeline: a chronological, causal record of what an agent did
+- An approval inbox and diff-first review with verbatim citations
+- Policy & capability controls — the answer to approval fatigue
+- A provenance explorer and per-event cryptographic proof
+- An on-demand relationship graph
 
-This is the phase that answers the project's central question: are the
-identity / capability / proposal contracts ergonomic under a real agent?
+## 3. The act surface — then
 
-## 3. Supervised OS — then
+Where actions are born, feeding the same gated pipeline.
 
-Turn the runtime into a real agent supervisor.
+- A screen-aware, multimodal work surface ("Summon") — ambient, not a chat box
+- A semantic filesystem: content unified by meaning and provenance, not folders
+- A real agent loop end to end: intent → context → proposal → human approval →
+  apply → full provenance, under capability and budget control
 
-- Asynchronous, multi-session daemon
-- Sandboxed agent sessions with kernel-enforced boundaries
-- Durable storage with rebuildable indexes
-- A scheduler with budget accounting and preemption
+## 4. Ambient layer & beyond — later
 
-## 4. Canvas & native — later
+Grow from a focused app into an always-present layer, and research native work.
 
-Bring the primary user experience forward, and research native-system work.
-
-- Infinite canvas shell as the primary surface, not an admin panel
-- Touch-first control, agent presence, timeline replay, private sharing
-- Cross-device continuity; eventually spatial (AR/VR) work surfaces
-- Selective native-system research: session manager, shell/compositor boundary,
-  storage substrate, and kernel/scheduler work where it earns its place
+- An ambient verification layer: a status panel, a global approval gate that
+  surfaces wherever an agent wants to act, and a command palette
+- Non-destructive steering and post-apply drift detection
+- Selective native-system research — session/shell boundaries, storage and event
+  substrate, capability enforcement closer to the kernel — **only where it earns
+  its place**
 
 ## What this roadmap does not promise
 
-No custom kernel, full hardware driver stack, production AR interface, public
-agent marketplace, or universal compatibility layer in the near term. The focus
-is proving the runtime substrate and then the first real agent loop.
+No custom kernel, full hardware driver stack, AR/VR or touch interface, public
+agent marketplace, or universal compatibility layer in the near term. The current
+surface is **desktop 2D**. The focus is proving the verifiable agent loop and
+making it legible.
 
 See the latest [development updates](../updates/README.md) for current status.

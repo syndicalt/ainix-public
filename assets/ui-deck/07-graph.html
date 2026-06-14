@@ -1,0 +1,308 @@
+<!doctype html><html lang="en" data-theme="dark"><head>
+<meta charset="utf-8"><title>Ainix — Provenance Graph</title>
+<link rel="stylesheet" href="tokens.css"><link rel="stylesheet" href="app.css">
+<style>
+body {
+  padding: 20px;
+  display: grid;
+  place-items: center;
+  background: radial-gradient(120% 120% at 30% 0%, oklch(0.26 0.03 264) 0%, oklch(0.18 0.012 264) 55%);
+}
+
+/* Graph canvas */
+.graph-canvas {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  background: var(--bg);
+  background-image:
+    radial-gradient(circle, var(--hairline) 1px, transparent 1px);
+  background-size: 24px 24px;
+  background-position: 12px 12px;
+}
+
+/* Legend card — positioned corner */
+.legend-card {
+  position: absolute;
+  bottom: var(--s4);
+  right: var(--s4);
+  width: 256px;
+  padding: var(--s3);
+  z-index: 10;
+}
+.legend-title { font-size: var(--t-xs); font-weight: 600; color: var(--text-2); margin-bottom: var(--s2); text-transform: uppercase; letter-spacing: 0.06em; }
+.legend-row { display: flex; align-items: center; gap: var(--s2); font-size: var(--t-xs); color: var(--text-3); padding: 3px 0; }
+.legend-line { width: 28px; height: 2px; border-radius: 1px; flex: none; }
+.legend-line.quoted { background: var(--accent); }
+.legend-line.para { background: var(--text-3); }
+.legend-line.inferred { background: var(--inferred); height: 2px; background-image: repeating-linear-gradient(90deg, var(--inferred) 0 5px, transparent 5px 9px); }
+.legend-note { font-size: var(--t-xs); color: var(--text-4); margin-top: var(--s2); padding-top: var(--s2); border-top: 1px solid var(--hairline); line-height: 1.5; }
+
+/* Graph node styles */
+.gnode {
+  position: absolute;
+  background: var(--surface-2);
+  border: 1px solid var(--hairline-2);
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow-2);
+  padding: var(--s2) var(--s3);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  cursor: default;
+  transition: box-shadow var(--dur-fast);
+}
+.gnode:hover { box-shadow: var(--shadow-3); }
+.gnode.central {
+  background: var(--surface-3);
+  border-color: var(--accent-line);
+  box-shadow: 0 0 0 2px var(--accent-quiet), var(--shadow-2);
+}
+.gnode .node-head { display: flex; align-items: center; gap: var(--s1); }
+.gnode .node-icon { color: var(--text-3); }
+.gnode .node-label { font-size: var(--t-sm); font-weight: 600; color: var(--text); }
+.gnode .node-sub { font-size: var(--t-xs); color: var(--text-3); font-family: var(--mono); }
+.gnode .node-tick { display: flex; align-items: center; gap: 3px; font-size: var(--t-2xs); font-weight: 600; color: var(--verified); margin-top: 2px; }
+.gnode.collapsed {
+  background: var(--surface-2);
+  border: 1px dashed var(--hairline-2);
+  opacity: 0.75;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  flex-direction: row;
+  gap: var(--s1);
+}
+.gnode.collapsed:hover { opacity: 1; }
+
+/* Edge SVG overlay */
+.edge-svg {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: visible;
+}
+</style>
+</head><body>
+<script src="sprite.js"></script>
+
+<div class="window">
+  <!-- titlebar -->
+  <div class="titlebar">
+    <div class="traffic"><i class="r"></i><i class="y"></i><i class="g"></i></div>
+    <div class="brand"><span class="glyph"><svg class="i sm" style="stroke:var(--on-accent)"><use href="#ic-shield"/></svg></span> Ainix</div>
+    <div class="spacer"></div>
+    <div class="cmd"><svg class="i sm"><use href="#ic-cmd"/></svg> Ask, or run a verified action…<span class="kbd">⌘K</span></div>
+    <div class="spacer"></div>
+    <svg class="i" style="color:var(--text-3)"><use href="#ic-search"/></svg>
+    <div class="chip neutral" style="height:26px"><svg class="i sm"><use href="#ic-user"/></svg> you</div>
+  </div>
+
+  <div class="body">
+    <!-- nav rail -->
+    <nav class="rail">
+      <div class="nav"><svg class="i"><use href="#ic-runs"/></svg> Runs</div>
+      <div class="nav"><svg class="i"><use href="#ic-approve"/></svg> Approvals <span class="count warn">2</span></div>
+      <div class="nav active"><svg class="i"><use href="#ic-prov"/></svg> Provenance</div>
+      <div class="nav"><svg class="i"><use href="#ic-policy"/></svg> Policies</div>
+      <div class="nav"><svg class="i"><use href="#ic-artifact"/></svg> Artifacts</div>
+      <div class="nav"><svg class="i"><use href="#ic-session"/></svg> Sessions</div>
+      <div class="grp">Recent runs</div>
+      <div class="nav" style="font-weight:500"><svg class="i" style="color:var(--verified)"><use href="#ic-check"/></svg> #4126 index reindex</div>
+      <div class="nav" style="font-weight:500;color:var(--text)"><svg class="i" style="color:var(--accent)"><use href="#ic-dot"/></svg> #4127 RUSTSEC patch</div>
+      <div class="nav" style="font-weight:500"><svg class="i" style="color:var(--verified)"><use href="#ic-check"/></svg> #4125 fmt sweep</div>
+      <div class="spacer"></div>
+      <div class="nav"><svg class="i"><use href="#ic-undo"/></svg> Time-travel</div>
+    </nav>
+
+    <!-- content -->
+    <div class="content">
+      <div class="toolbar">
+        <div class="stack" style="gap:2px">
+          <h2>Run #4127 · Resolve RUSTSEC-2026-0041</h2>
+          <div class="sub flex gap2">
+            <span>Provenance of</span>
+            <span class="chip accent" style="height:20px;padding:0 8px;font-size:var(--t-xs)"><svg class="i sm"><use href="#ic-file"/></svg> applied: src/tls.rs (+3 −1)</span>
+          </div>
+        </div>
+        <div class="spacer"></div>
+        <div class="seg">
+          <button>Timeline</button>
+          <button class="on">Graph</button>
+          <button>Diffs</button>
+        </div>
+        <button class="btn ghost"><svg class="i sm"><use href="#ic-undo"/></svg> Rewind</button>
+      </div>
+
+      <!-- graph canvas — fills remaining height -->
+      <div class="graph-canvas">
+
+        <!-- SVG edges drawn first (behind nodes) -->
+        <svg class="edge-svg" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <marker id="arr-accent" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+              <path d="M0 0 L7 3.5 L0 7 Z" fill="oklch(0.70 0.135 256)" opacity="0.7"/>
+            </marker>
+            <marker id="arr-muted" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+              <path d="M0 0 L7 3.5 L0 7 Z" fill="oklch(0.64 0.010 264)" opacity="0.6"/>
+            </marker>
+            <marker id="arr-inferred" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+              <path d="M0 0 L7 3.5 L0 7 Z" fill="oklch(0.74 0.13 318)" opacity="0.7"/>
+            </marker>
+          </defs>
+
+          <!-- Central node is at ~(540, 310) center, 180w 70h → center (540,345) -->
+          <!-- Node positions (center points):
+               central: (540, 345)
+               advisory: (200, 168)  top-left
+               changelog: (820, 168) top-right
+               approval: (200, 420)  mid-left
+               tests: (820, 420)     mid-right
+               proposal: (540, 156)  top-center
+               collapsed: (820, 570) bottom-right
+          -->
+
+          <!-- advisory → central (quoted / accent) -->
+          <line x1="285" y1="195" x2="455" y2="318"
+            stroke="oklch(0.70 0.135 256)" stroke-width="1.5" stroke-opacity="0.7"
+            marker-end="url(#arr-accent)"/>
+
+          <!-- changelog → central (quoted / accent) -->
+          <line x1="740" y1="195" x2="620" y2="318"
+            stroke="oklch(0.70 0.135 256)" stroke-width="1.5" stroke-opacity="0.7"
+            marker-end="url(#arr-accent)"/>
+
+          <!-- proposal → central (quoted / accent) -->
+          <line x1="540" y1="208" x2="540" y2="312"
+            stroke="oklch(0.70 0.135 256)" stroke-width="1.5" stroke-opacity="0.7"
+            marker-end="url(#arr-accent)"/>
+
+          <!-- approval → central (quoted / accent) -->
+          <line x1="285" y1="420" x2="455" y2="375"
+            stroke="oklch(0.70 0.135 256)" stroke-width="1.5" stroke-opacity="0.7"
+            marker-end="url(#arr-accent)"/>
+
+          <!-- tests → central (quoted / accent) -->
+          <line x1="737" y1="420" x2="622" y2="375"
+            stroke="oklch(0.70 0.135 256)" stroke-width="1.5" stroke-opacity="0.7"
+            marker-end="url(#arr-accent)"/>
+
+          <!-- collapsed → central (inferred / dashed) -->
+          <line x1="740" y1="558" x2="625" y2="395"
+            stroke="oklch(0.74 0.13 318)" stroke-width="1.5" stroke-opacity="0.6"
+            stroke-dasharray="6 4"
+            marker-end="url(#arr-inferred)"/>
+        </svg>
+
+        <!-- ── Central node ── -->
+        <div class="gnode central" style="left:450px;top:312px;width:192px">
+          <div class="node-head">
+            <svg class="i sm node-icon" style="color:var(--accent)"><use href="#ic-file"/></svg>
+            <span class="node-label">applied</span>
+          </div>
+          <div class="node-sub">src/tls.rs  +3 −1</div>
+          <div class="node-tick">
+            <svg class="i sm"><use href="#ic-check"/></svg>
+            integrity verified
+          </div>
+        </div>
+
+        <!-- ── Source: advisory ── -->
+        <div class="gnode" style="left:110px;top:140px;width:196px">
+          <div class="node-head">
+            <svg class="i sm node-icon" style="color:var(--danger)"><use href="#ic-warn"/></svg>
+            <span class="node-label">Advisory</span>
+          </div>
+          <div class="node-sub">RUSTSEC-2026-0041</div>
+          <div class="node-tick">
+            <svg class="i sm"><use href="#ic-check"/></svg>
+            verified · RustSec DB
+          </div>
+        </div>
+
+        <!-- ── Source: changelog ── -->
+        <div class="gnode" style="left:724px;top:140px;width:200px">
+          <div class="node-head">
+            <svg class="i sm node-icon" style="color:var(--text-3)"><use href="#ic-artifact"/></svg>
+            <span class="node-label">CHANGELOG</span>
+          </div>
+          <div class="node-sub">openssl 0.10.72</div>
+          <div class="node-tick">
+            <svg class="i sm"><use href="#ic-check"/></svg>
+            crate registry · pinned
+          </div>
+        </div>
+
+        <!-- ── Source: proposal ── -->
+        <div class="gnode" style="left:448px;top:118px;width:192px">
+          <div class="node-head">
+            <svg class="i sm node-icon" style="color:var(--accent)"><use href="#ic-approve"/></svg>
+            <span class="node-label">Proposal #2</span>
+          </div>
+          <div class="node-sub">agent · 13:59:02</div>
+          <div class="node-tick">
+            <svg class="i sm"><use href="#ic-check"/></svg>
+            signed · event 0x8f2c
+          </div>
+        </div>
+
+        <!-- ── Source: approval by you ── -->
+        <div class="gnode" style="left:108px;top:386px;width:196px">
+          <div class="node-head">
+            <svg class="i sm node-icon" style="color:var(--verified)"><use href="#ic-lock"/></svg>
+            <span class="node-label">Approved by you</span>
+          </div>
+          <div class="node-sub">13:59:40 · signed</div>
+          <div class="node-tick">
+            <svg class="i sm"><use href="#ic-check"/></svg>
+            key 9F2C…A1 · valid
+          </div>
+        </div>
+
+        <!-- ── Source: cargo test ── -->
+        <div class="gnode" style="left:720px;top:386px;width:208px">
+          <div class="node-head">
+            <svg class="i sm node-icon" style="color:var(--verified)"><use href="#ic-term"/></svg>
+            <span class="node-label">cargo test</span>
+          </div>
+          <div class="node-sub">41 passed · 0 failed</div>
+          <div class="node-tick">
+            <svg class="i sm"><use href="#ic-check"/></svg>
+            verified · 14:00:12
+          </div>
+        </div>
+
+        <!-- ── Collapsed peripheral node ── -->
+        <div class="gnode collapsed" style="left:722px;top:534px;width:136px;padding:var(--s2) var(--s3)">
+          <svg class="i sm" style="color:var(--text-3)"><use href="#ic-graph"/></svg>
+          <span style="font-size:var(--t-sm);color:var(--text-2);font-weight:600">+4 related</span>
+          <svg class="i sm" style="color:var(--text-4)"><use href="#ic-chev"/></svg>
+        </div>
+
+        <!-- edge type labels inline -->
+        <div style="position:absolute;left:342px;top:242px;font-size:var(--t-2xs);color:oklch(0.70 0.135 256);font-weight:600;opacity:0.8;letter-spacing:0.05em;text-transform:uppercase">quoted</div>
+        <div style="position:absolute;left:800px;top:480px;font-size:var(--t-2xs);color:var(--inferred);font-weight:600;opacity:0.8;letter-spacing:0.05em;text-transform:uppercase">inferred</div>
+
+        <!-- Legend card -->
+        <div class="card legend-card">
+          <div class="legend-title">Edge types</div>
+          <div class="legend-row">
+            <div class="legend-line quoted"></div>
+            <span>Quoted — verbatim source text</span>
+          </div>
+          <div class="legend-row">
+            <div class="legend-line para"></div>
+            <span>Paraphrased — compressed claim</span>
+          </div>
+          <div class="legend-row">
+            <div class="legend-line inferred"></div>
+            <span>Inferred — model reasoning (dashed)</span>
+          </div>
+          <div class="legend-note">Focused on the provenance of 1 action. The graph is for path, hub, and impact questions — the timeline is the default audit view.</div>
+        </div>
+
+      </div><!-- end graph-canvas -->
+    </div><!-- end content -->
+  </div><!-- end body -->
+</div><!-- end window -->
+</body></html>

@@ -1,0 +1,112 @@
+/* ============================================================================
+   Ainix — Design Tokens
+   The COSMIC/elementary-grade design system, expressed as real CSS variables.
+   OKLCH-derived theming · 6px spacing grid · one type family · layered "UI
+   levels" (depth without borders) · rounded corners + soft shadows.
+   The mockups consume this file verbatim — a real design system, not styling.
+   ============================================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root {
+  /* ---- Accent (the one user-chosen color; everything else is neutral) ----
+     Defined in OKLCH so surface/text variants are derived by varying lightness,
+     keeping hue + chroma — they always hit contrast targets. */
+  --accent-h: 256;
+  --accent-c: 0.135;
+  --accent:        oklch(0.70 var(--accent-c) var(--accent-h));
+  --accent-hover:  oklch(0.76 var(--accent-c) var(--accent-h));
+  --accent-press:  oklch(0.64 var(--accent-c) var(--accent-h));
+  --accent-quiet:  oklch(0.70 var(--accent-c) var(--accent-h) / 0.16);
+  --accent-line:   oklch(0.70 var(--accent-c) var(--accent-h) / 0.40);
+  --on-accent:     oklch(0.98 0.01 var(--accent-h));
+
+  /* ---- Semantic (trust language) ---- */
+  --verified:      oklch(0.78 0.15 158);   /* signature valid · chain intact   */
+  --verified-bg:   oklch(0.78 0.15 158 / 0.15);
+  --review:        oklch(0.82 0.13 82);    /* needs human review               */
+  --review-bg:     oklch(0.82 0.13 82 / 0.15);
+  --danger:        oklch(0.68 0.20 24);    /* destructive · chain broken       */
+  --danger-bg:     oklch(0.68 0.20 24 / 0.15);
+  --inferred:      oklch(0.74 0.13 318);   /* model-inferred (highest scrutiny)*/
+  --inferred-bg:   oklch(0.74 0.13 318 / 0.15);
+
+  /* ---- Spacing — 6px base grid (6 / 12 / 18 / 24 rhythm) ---- */
+  --s1: 6px;  --s2: 12px; --s3: 18px; --s4: 24px;
+  --s5: 36px; --s6: 48px; --s7: 64px; --s8: 96px;
+
+  /* ---- Radii — 3 corner styles offered; md is default ---- */
+  --r-xs: 5px; --r-sm: 8px; --r-md: 11px; --r-lg: 16px; --r-xl: 22px; --r-pill: 999px;
+
+  /* ---- Type — one family, clear scale ---- */
+  --font: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+  --t-2xs: 10.5px; --t-xs: 11.5px; --t-sm: 12.5px; --t-base: 13.5px;
+  --t-md: 15px; --t-lg: 18px; --t-xl: 23px; --t-2xl: 30px; --t-3xl: 40px;
+  --lh-tight: 1.2; --lh: 1.5;
+
+  /* ---- Motion — subtle, quick, purposeful ---- */
+  --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --dur-fast: 120ms; --dur: 200ms; --dur-slow: 320ms;
+}
+
+/* ============================ DARK (default) ============================== */
+:root, :root[data-theme='dark'] {
+  color-scheme: dark;
+  /* Layered UI levels — depth via stacked surface shades, not borders */
+  --bg:        oklch(0.205 0.012 264);  /* level 0 — desktop / window base   */
+  --surface-1: oklch(0.235 0.012 264);  /* level 1 — panels                  */
+  --surface-2: oklch(0.270 0.013 264);  /* level 2 — cards / raised          */
+  --surface-3: oklch(0.310 0.014 264);  /* level 3 — popovers / menus        */
+  --surface-hi:oklch(0.345 0.015 264);  /* hover lift                        */
+  --hairline:  oklch(1 0 0 / 0.07);     /* faintest separation               */
+  --hairline-2:oklch(1 0 0 / 0.11);
+
+  --text:      oklch(0.965 0.004 264);  /* primary                           */
+  --text-2:    oklch(0.800 0.008 264);  /* secondary                         */
+  --text-3:    oklch(0.640 0.010 264);  /* tertiary / muted                  */
+  --text-4:    oklch(0.520 0.011 264);  /* faint / disabled                  */
+
+  --shadow-1: 0 1px 2px oklch(0 0 0 / 0.30), 0 1px 1px oklch(0 0 0 / 0.20);
+  --shadow-2: 0 4px 14px oklch(0 0 0 / 0.34), 0 1px 3px oklch(0 0 0 / 0.24);
+  --shadow-3: 0 16px 44px oklch(0 0 0 / 0.46), 0 4px 12px oklch(0 0 0 / 0.30);
+  /* subtle top-edge sheen that gives COSMIC its layered look */
+  --sheen: inset 0 1px 0 oklch(1 0 0 / 0.05);
+}
+
+/* ============================== LIGHT ===================================== */
+:root[data-theme='light'] {
+  color-scheme: light;
+  --bg:        oklch(0.955 0.004 264);
+  --surface-1: oklch(0.985 0.003 264);
+  --surface-2: oklch(1 0 0);
+  --surface-3: oklch(1 0 0);
+  --surface-hi:oklch(0.975 0.004 264);
+  --hairline:  oklch(0.20 0.02 264 / 0.10);
+  --hairline-2:oklch(0.20 0.02 264 / 0.16);
+
+  --text:      oklch(0.255 0.020 264);
+  --text-2:    oklch(0.420 0.018 264);
+  --text-3:    oklch(0.560 0.014 264);
+  --text-4:    oklch(0.660 0.012 264);
+
+  --accent:        oklch(0.58 0.155 var(--accent-h));
+  --accent-hover:  oklch(0.52 0.155 var(--accent-h));
+  --accent-press:  oklch(0.46 0.150 var(--accent-h));
+  --accent-quiet:  oklch(0.58 0.155 var(--accent-h) / 0.12);
+  --verified:      oklch(0.55 0.15 158);
+  --review:        oklch(0.62 0.13 70);
+  --danger:        oklch(0.55 0.20 24);
+  --inferred:      oklch(0.55 0.16 318);
+
+  --shadow-1: 0 1px 2px oklch(0.3 0.02 264 / 0.10);
+  --shadow-2: 0 6px 18px oklch(0.3 0.03 264 / 0.12), 0 1px 3px oklch(0.3 0.02 264 / 0.08);
+  --shadow-3: 0 18px 48px oklch(0.3 0.04 264 / 0.18), 0 4px 12px oklch(0.3 0.03 264 / 0.10);
+  --sheen: inset 0 1px 0 oklch(1 0 0 / 0.6);
+}
+
+/* density: compact scales the grid + radii together (COSMIC density control) */
+:root[data-density='compact'] {
+  --s1: 5px; --s2: 10px; --s3: 15px; --s4: 20px; --s5: 30px; --s6: 40px;
+  --r-md: 9px; --r-lg: 13px;
+}

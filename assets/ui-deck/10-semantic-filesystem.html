@@ -1,0 +1,155 @@
+<!doctype html><html lang="en" data-theme="dark"><head>
+<meta charset="utf-8"><title>Ainix — Semantic Filesystem</title>
+<link rel="stylesheet" href="tokens.css"><link rel="stylesheet" href="app.css">
+<style>
+body{padding:20px;display:grid;place-items:center;background:
+  radial-gradient(120% 120% at 30% 0%, oklch(0.26 0.03 264) 0%, oklch(0.18 0.012 264) 55%);}
+.qbar{display:flex;align-items:center;gap:var(--s2);margin-bottom:var(--s4)}
+.qchip{display:inline-flex;align-items:center;gap:8px;height:30px;padding:0 var(--s2);border-radius:var(--r-sm);
+  background:var(--accent-quiet);color:var(--accent);font-size:var(--t-sm);font-weight:600}
+.cluster{margin-bottom:var(--s5)}
+.cluster .ch{display:flex;align-items:center;gap:var(--s2);margin-bottom:var(--s2)}
+.cluster .ch h3{font-size:var(--t-md);font-weight:600}
+.cluster .ch .ct{font-size:var(--t-xs);color:var(--text-4);font-family:var(--mono)}
+.cluster .ch .ln{flex:1;height:1px;background:var(--hairline)}
+.objgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--s2)}
+.obj{display:flex;gap:var(--s2);padding:var(--s2) var(--s3);border-radius:var(--r-md);background:var(--surface-2);
+  border:1px solid var(--hairline);box-shadow:var(--shadow-1);align-items:flex-start;min-width:0}
+.obj:hover{background:var(--surface-hi)}
+.obj.sel{background:var(--accent-quiet);box-shadow:0 0 0 1px var(--accent) inset}
+.obj .ico{width:30px;height:30px;border-radius:var(--r-sm);display:grid;place-items:center;flex:none;
+  background:var(--surface-3);color:var(--text-2)}
+.obj .ico.code{background:var(--accent-quiet);color:var(--accent)}
+.obj .ico.src{background:var(--verified-bg);color:var(--verified)}
+.obj .b{min-width:0;flex:1}
+.obj .b .nm{font-weight:600;font-size:var(--t-sm);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.obj .b .m{font-size:var(--t-xs);color:var(--text-3);margin-top:2px;display:flex;align-items:center;gap:5px}
+.tick{display:inline-flex;align-items:center;gap:4px;font-size:var(--t-2xs);font-weight:600;color:var(--verified)}
+.note-strip{display:flex;align-items:center;gap:var(--s2);padding:var(--s2) var(--s3);border-radius:var(--r-md);
+  background:var(--surface-1);border:1px solid var(--hairline);color:var(--text-3);font-size:var(--t-sm);margin-bottom:var(--s4)}
+.preview{background:var(--bg);border:1px solid var(--hairline);border-radius:var(--r-sm);padding:var(--s2) var(--s3);
+  font-size:var(--t-sm);color:var(--text-2);line-height:1.55}
+.preview .hd{font-family:var(--mono);font-size:var(--t-xs);color:var(--text-4);margin-bottom:6px}
+.nb{display:flex;align-items:center;gap:var(--s2);padding:7px var(--s2);border-radius:var(--r-sm)}
+.nb:hover{background:var(--surface-2)}
+.nb .ico{width:24px;height:24px;border-radius:6px;display:grid;place-items:center;background:var(--surface-3);color:var(--text-3);flex:none}
+.nb .t{flex:1;font-size:var(--t-sm)}
+.nb .t .m{font-size:var(--t-2xs);color:var(--text-4)}
+.opbtns{display:flex;flex-direction:column;gap:var(--s1)}
+</style></head><body>
+<script src="sprite.js"></script>
+
+<div class="window">
+  <div class="titlebar">
+    <div class="traffic"><i class="r"></i><i class="y"></i><i class="g"></i></div>
+    <div class="brand"><span class="glyph"><svg class="i sm" style="stroke:var(--on-accent)"><use href="#ic-shield"/></svg></span> Ainix</div>
+    <div class="spacer"></div>
+    <div class="cmd"><svg class="i sm"><use href="#ic-search"/></svg> Find by meaning across everything…<span class="kbd">⌘K</span></div>
+    <div class="spacer"></div>
+    <div class="chip neutral" style="height:26px"><svg class="i sm"><use href="#ic-user"/></svg> you</div>
+  </div>
+
+  <div class="body with-inspector">
+    <nav class="rail">
+      <div class="nav"><svg class="i"><use href="#ic-runs"/></svg> Runs</div>
+      <div class="nav"><svg class="i"><use href="#ic-approve"/></svg> Approvals <span class="count warn">2</span></div>
+      <div class="nav"><svg class="i"><use href="#ic-prov"/></svg> Provenance</div>
+      <div class="nav"><svg class="i"><use href="#ic-policy"/></svg> Policies</div>
+      <div class="nav active"><svg class="i"><use href="#ic-artifact"/></svg> Semantic FS</div>
+      <div class="nav"><svg class="i"><use href="#ic-session"/></svg> Sessions</div>
+      <div class="grp">Lenses</div>
+      <div class="nav" style="font-weight:500;color:var(--text)"><svg class="i" style="color:var(--accent)"><use href="#ic-search"/></svg> By meaning</div>
+      <div class="nav" style="font-weight:500"><svg class="i"><use href="#ic-file"/></svg> By type</div>
+      <div class="nav" style="font-weight:500"><svg class="i"><use href="#ic-clock"/></svg> By time</div>
+      <div class="nav" style="font-weight:500"><svg class="i"><use href="#ic-graph"/></svg> Relationships</div>
+    </nav>
+
+    <div class="content">
+      <div class="toolbar">
+        <div class="stack" style="gap:2px">
+          <h2>Semantic filesystem</h2>
+          <div class="sub">12,840 objects · unified by meaning + provenance, not folders</div>
+        </div>
+        <div class="spacer"></div>
+        <div class="seg"><button class="on">Meaning</button><button>Type</button><button>Time</button><button>Graph</button></div>
+        <div class="field" style="width:230px"><svg class="i sm"><use href="#ic-search"/></svg> find by meaning…</div>
+      </div>
+
+      <div class="scroll">
+        <div class="qbar">
+          <span class="muted" style="font-size:var(--t-sm)">Showing</span>
+          <span class="qchip"><svg class="i sm"><use href="#ic-search"/></svg> verify-mode defaults &amp; TLS hardening <svg class="i sm" style="opacity:.6"><use href="#ic-x"/></svg></span>
+          <span class="muted" style="font-size:var(--t-sm)">· 14 objects across 2 clusters · every object signed &amp; provenance-linked</span>
+        </div>
+
+        <div class="cluster">
+          <div class="ch"><svg class="i" style="color:var(--accent)"><use href="#ic-dot"/></svg><h3>TLS / openssl verification</h3><span class="ct">8</span><span class="ln"></span></div>
+          <div class="objgrid">
+            <div class="obj"><span class="ico code"><svg class="i sm"><use href="#ic-file"/></svg></span><div class="b"><div class="nm">src/tls.rs</div><div class="m">code · ainix-api <span class="tick"><svg class="i sm"><use href="#ic-check"/></svg>Run #4127</span></div></div></div>
+            <div class="obj"><span class="ico src"><svg class="i sm"><use href="#ic-prov"/></svg></span><div class="b"><div class="nm">RUSTSEC-2026-0041</div><div class="m">advisory <span class="tick"><svg class="i sm"><use href="#ic-check"/></svg>verified source</span></div></div></div>
+            <div class="obj sel"><span class="ico"><svg class="i sm"><use href="#ic-artifact"/></svg></span><div class="b"><div class="nm">tls-hardening.md</div><div class="m">note · yours · 3d ago</div></div></div>
+            <div class="obj"><span class="ico"><svg class="i sm"><use href="#ic-file"/></svg></span><div class="b"><div class="nm">openssl CHANGELOG</div><div class="m">doc <span class="tick"><svg class="i sm"><use href="#ic-check"/></svg>pinned</span></div></div></div>
+            <div class="obj"><span class="ico"><svg class="i sm"><use href="#ic-runs"/></svg></span><div class="b"><div class="nm">Run #4127</div><div class="m">run · applied tls.rs patch</div></div></div>
+            <div class="obj"><span class="ico"><svg class="i sm"><use href="#ic-runs"/></svg></span><div class="b"><div class="nm">Run #4126</div><div class="m">run · openssl bump</div></div></div>
+            <div class="obj"><span class="ico"><svg class="i sm"><use href="#ic-term"/></svg></span><div class="b"><div class="nm">tls handshake test</div><div class="m">artifact · 41 passed</div></div></div>
+            <div class="obj"><span class="ico"><svg class="i sm"><use href="#ic-eye"/></svg></span><div class="b"><div class="nm">clippy output 14:31</div><div class="m">screenshot · ingested</div></div></div>
+          </div>
+        </div>
+
+        <div class="cluster">
+          <div class="ch"><svg class="i" style="color:var(--accent)"><use href="#ic-dot"/></svg><h3>Capability &amp; gating policy</h3><span class="ct">6</span><span class="ln"></span></div>
+          <div class="objgrid">
+            <div class="obj"><span class="ico"><svg class="i sm"><use href="#ic-policy"/></svg></span><div class="b"><div class="nm">tls:verify policy</div><div class="m">policy · always-allow read</div></div></div>
+            <div class="obj"><span class="ico"><svg class="i sm"><use href="#ic-lock"/></svg></span><div class="b"><div class="nm">cap_net.fetch</div><div class="m">capability · crates.io · 30m</div></div></div>
+            <div class="obj"><span class="ico"><svg class="i sm"><use href="#ic-policy"/></svg></span><div class="b"><div class="nm">rm -rf → Ask</div><div class="m">policy · high blast radius</div></div></div>
+            <div class="obj"><span class="ico"><svg class="i sm"><use href="#ic-artifact"/></svg></span><div class="b"><div class="nm">gating-rationale.md</div><div class="m">note · reversibility rules</div></div></div>
+            <div class="obj"><span class="ico"><svg class="i sm"><use href="#ic-runs"/></svg></span><div class="b"><div class="nm">Run #4125</div><div class="m">run · fmt + clippy sweep</div></div></div>
+            <div class="obj"><span class="ico"><svg class="i sm"><use href="#ic-lock"/></svg></span><div class="b"><div class="nm">cap_fs.delete</div><div class="m">capability · ./target · 10m</div></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- inspector: the selected object -->
+    <aside class="inspector">
+      <div class="ihead row-between">
+        <div class="stack" style="gap:3px"><div class="section-label">Object</div><h3 style="font-size:var(--t-md)">tls-hardening.md</h3></div>
+        <span class="chip neutral">note</span>
+      </div>
+      <div class="tabs"><div class="tab on">Content</div><div class="tab">Neighbors</div><div class="tab">Provenance</div></div>
+      <div class="ibody">
+        <div class="preview">
+          <div class="hd"># tls-hardening.md</div>
+          Default <code class="mono">SslVerifyMode</code> must stay <code class="mono">PEER</code> on the api listener.<br>The 0.10.72 rename (NONE → PEER) is cosmetic — same bit-flag value — but the call site must be updated or the build breaks.
+        </div>
+
+        <div class="stack gap2">
+          <div class="section-label">Semantic neighbors — linked by meaning</div>
+          <div class="nb"><span class="ico"><svg class="i sm"><use href="#ic-file"/></svg></span><div class="t">src/tls.rs<div class="m">the code this note governs</div></div><svg class="i sm" style="color:var(--text-4)"><use href="#ic-link"/></svg></div>
+          <div class="nb"><span class="ico"><svg class="i sm"><use href="#ic-prov"/></svg></span><div class="t">RUSTSEC-2026-0041<div class="m">the advisory it addresses</div></div><svg class="i sm" style="color:var(--text-4)"><use href="#ic-link"/></svg></div>
+          <div class="nb"><span class="ico"><svg class="i sm"><use href="#ic-runs"/></svg></span><div class="t">Run #4127<div class="m">cited this note while patching</div></div><svg class="i sm" style="color:var(--text-4)"><use href="#ic-link"/></svg></div>
+        </div>
+
+        <div class="stack gap2">
+          <div class="section-label">Provenance</div>
+          <dl class="kv">
+            <dt>created by</dt><dd>you · 3 days ago</dd>
+            <dt>cited in</dt><dd>Run #4127 (proposal #2)</dd>
+            <dt>integrity</dt><dd><span class="tick"><svg class="i sm"><use href="#ic-check"/></svg> signed · rebuildable from log</span></dd>
+          </dl>
+        </div>
+
+        <hr class="div">
+        <div class="stack gap2">
+          <div class="section-label">Operate — actions route through the gate</div>
+          <div class="opbtns">
+            <button class="btn"><svg class="i sm"><use href="#ic-cmd"/></svg> Feed to Summon <span class="kbd" style="margin-left:auto">⌘␣</span></button>
+            <button class="btn"><svg class="i sm"><use href="#ic-bolt"/></svg> Cite in a new proposal</button>
+            <button class="btn ghost"><svg class="i sm"><use href="#ic-eye"/></svg> Open</button>
+          </div>
+        </div>
+      </div>
+    </aside>
+  </div>
+</div>
+</body></html>

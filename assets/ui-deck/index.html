@@ -1,0 +1,133 @@
+<!doctype html><html lang="en" data-theme="dark"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ainix — UI Vision Deck</title>
+<link rel="stylesheet" href="tokens.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font);background:
+  radial-gradient(130% 120% at 25% -10%, oklch(0.24 0.025 264), oklch(0.155 0.012 264) 60%);
+  color:var(--text);height:100vh;overflow:hidden;-webkit-font-smoothing:antialiased;
+  letter-spacing:-0.006em;display:flex;flex-direction:column}
+
+/* top bar */
+.bar{display:flex;align-items:center;gap:var(--s3);padding:var(--s3) var(--s4);flex:none}
+.logo{display:flex;align-items:center;gap:var(--s2);font-weight:600;font-size:var(--t-md)}
+.glyph{width:24px;height:24px;border-radius:7px;display:grid;place-items:center;color:var(--on-accent);
+  background:linear-gradient(140deg,var(--accent),var(--accent-press));box-shadow:var(--shadow-1);
+  font-weight:700;font-size:13px}
+.bar .sub{color:var(--text-3);font-size:var(--t-sm)}
+.spacer{flex:1}
+.gbtn{font:inherit;color:var(--text-2);background:var(--surface-2);border:1px solid var(--hairline-2);
+  border-radius:var(--r-sm);padding:7px 13px;font-size:var(--t-sm);font-weight:600;cursor:pointer}
+.gbtn:hover{background:var(--surface-hi)}
+
+/* stage */
+.stage{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;padding:0 var(--s5);gap:var(--s4)}
+.shot{max-width:min(1180px,82vw);max-height:74vh;border-radius:var(--r-lg);
+  box-shadow:0 30px 80px oklch(0 0 0 / .55),0 8px 24px oklch(0 0 0 /.4);display:block}
+.nav-arrow{width:46px;height:46px;border-radius:var(--r-pill);background:var(--surface-2);
+  border:1px solid var(--hairline-2);color:var(--text);font-size:20px;cursor:pointer;flex:none;
+  display:grid;place-items:center;box-shadow:var(--shadow-1)}
+.nav-arrow:hover{background:var(--surface-hi)}
+
+/* caption */
+.cap{flex:none;padding:var(--s3) var(--s5) var(--s4);display:flex;align-items:flex-start;gap:var(--s4)}
+.cap .stageno{font-family:var(--mono);font-size:var(--t-xs);font-weight:600;color:var(--accent);
+  background:var(--accent-quiet);padding:4px 9px;border-radius:var(--r-sm);white-space:nowrap;margin-top:2px}
+.cap h2{font-size:var(--t-lg);font-weight:600;letter-spacing:-0.02em}
+.cap p{color:var(--text-3);font-size:var(--t-sm);max-width:1000px;margin-top:3px;line-height:1.55}
+.dots{display:flex;gap:7px;align-items:center}
+.dot{width:8px;height:8px;border-radius:var(--r-pill);background:var(--surface-hi);cursor:pointer;border:0}
+.dot.on{background:var(--accent);width:22px}
+.count{font-family:var(--mono);font-size:var(--t-sm);color:var(--text-3);min-width:56px;text-align:right}
+
+/* grid overview */
+.grid{position:fixed;inset:0;background:oklch(0.14 0.012 264 / .97);padding:var(--s5);
+  display:none;grid-template-columns:repeat(3,1fr);gap:var(--s4);overflow:auto;align-content:start}
+.grid.show{display:grid}
+.gcard{cursor:pointer;border-radius:var(--r-md);overflow:hidden;background:var(--surface-2);
+  border:1px solid var(--hairline);box-shadow:var(--shadow-2);transition:transform .12s}
+.gcard:hover{transform:translateY(-3px)}
+.gcard img{width:100%;display:block}
+.gcard .gc{padding:var(--s2) var(--s3);font-size:var(--t-sm);font-weight:600}
+.gclose{position:fixed;top:var(--s4);right:var(--s4)}
+</style></head><body>
+
+<div class="bar">
+  <div class="logo"><span class="glyph">A</span> Ainix</div>
+  <span class="sub">UI Vision Deck · a from-scratch reimagining of the verifiable-agent shell</span>
+  <div class="spacer"></div>
+  <button class="gbtn" onclick="toggleGrid()">Overview ⤢</button>
+</div>
+
+<div class="stage">
+  <button class="nav-arrow" onclick="go(-1)">‹</button>
+  <img class="shot" id="shot" alt="">
+  <button class="nav-arrow" onclick="go(1)">›</button>
+</div>
+
+<div class="cap">
+  <span class="stageno" id="stageno"></span>
+  <div style="flex:1">
+    <h2 id="title"></h2>
+    <p id="desc"></p>
+  </div>
+  <div style="display:flex;flex-direction:column;align-items:flex-end;gap:var(--s2)">
+    <span class="count" id="count"></span>
+    <div class="dots" id="dots"></div>
+  </div>
+</div>
+
+<div class="grid" id="grid"></div>
+
+<script>
+const slides = [
+  {img:'shots/08-shell-cover.png', stage:'Shell', title:'The calm shell',
+   desc:"COSMIC/elementaryOS-grade design tokens (OKLCH-derived theming, 6px grid, one font, layered surfaces). The command bar is the front door; trust shows at a glance. Lightness is treated as a design spec, not an afterthought."},
+  {img:'shots/01-run-timeline.png', stage:'Verify', title:'Run timeline — the verifiability surface',
+   desc:"The default view: a chronological, append-only causal waterfall where indentation encodes 'this step spawned that step'. Integrity is ambient (per-row), proof is one click deep. The destructive step is gated, awaiting you — with type-to-confirm."},
+  {img:'shots/02-approval-inbox.png', stage:'Verify', title:'Approval inbox',
+   desc:"A triage queue sorted by risk × impact. Each proposal is a self-contained decision card that gathers context FOR you (diff + verbatim evidence + reasoning + precedent). Three-state verdict. Risk-based routing beats approval fatigue."},
+  {img:'shots/03-diff-review.png', stage:'Verify', title:'Diff-first review with verbatim citations',
+   desc:"You approve the exact delta, per hunk — not a description of it. Sentence-granular citations link each claim to its source (quoted vs model-inferred). A live precondition checklist gates the one-click apply."},
+  {img:'shots/06-policy-capabilities.png', stage:'Verify', title:'Policy & capabilities — the fatigue antidote',
+   desc:"'Ask once, remember my answer.' Reversibility-aware gating (auto-allow reversible, always gate destructive). Blast-radius classes. Scoped, time-bounded capability tokens. The plan→run→review bookend. 'Signed' must never mean 'prompts every time.'"},
+  {img:'shots/04-provenance-explorer.png', stage:'Verify', title:'Provenance explorer',
+   desc:"Faceted, search-driven audit over the signed event log. The time-histogram surfaces a runaway loop as a spike. Filter by verification status — and when a chain breaks, the UI shows it honestly at the exact severed edge. Never hides a tamper."},
+  {img:'shots/05-event-proof.png', stage:'Verify', title:'Proof, one click deep',
+   desc:"A single event's full record: fixed structured slots + the raw signed bytes + the hash-chain (prevHash→thisHash), signature, signer key, and external anchor. It attests custody and identity — explicitly NOT that the action was correct."},
+  {img:'shots/07-graph.png', stage:'Verify', title:'Provenance graph, on demand',
+   desc:"One claim → its cited sources, with typed edges (quoted / paraphrased / inferred). Peripheral nodes expand on demand — never the whole-run hairball. Reached only for path, hub, and impact questions; the timeline stays the default audit view."},
+  {img:'shots/09-summon-work-surface.png', stage:'Act', title:'The work surface — Summon',
+   desc:"Where actions are born — an ambient summon/dismiss overlay, NOT a chat box. Screen-aware DECLARATIVE context as removable chips (structured signals, nothing scraped), multimodal ingest, and a dynamic working area of gated proposals + semantic-filesystem matches instead of a transcript. Its output is a signed, gated action that becomes a run."},
+  {img:'shots/10-semantic-filesystem.png', stage:'Act', title:'The semantic filesystem',
+   desc:"Your content unified by MEANING + PROVENANCE — not folders. Code, advisories, notes, runs, and artifacts surface by semantic match, each signed and provenance-linked. Operate on any object and it routes through the gate. A relationship graph is one available lens — never the organizing principle."},
+];
+let i = 0;
+const $ = id => document.getElementById(id);
+function render(){
+  const s = slides[i];
+  $('shot').src = s.img; $('shot').alt = s.title;
+  $('stageno').textContent = s.stage;
+  $('title').textContent = s.title;
+  $('desc').textContent = s.desc;
+  $('count').textContent = String(i+1).padStart(2,'0')+' / '+String(slides.length).padStart(2,'0');
+  $('dots').innerHTML = slides.map((_,n)=>`<button class="dot ${n===i?'on':''}" onclick="jump(${n})"></button>`).join('');
+}
+function go(d){ i=(i+d+slides.length)%slides.length; render(); }
+function jump(n){ i=n; render(); document.getElementById('grid').classList.remove('show'); }
+function toggleGrid(){
+  const g=$('grid');
+  g.innerHTML = `<button class="gbtn gclose" onclick="toggleGrid()">Close ✕</button>` +
+    slides.map((s,n)=>`<div class="gcard" onclick="jump(${n})"><img src="${s.img}"><div class="gc"><span style="color:var(--accent);font-family:var(--mono);font-size:var(--t-xs)">${s.stage}</span> &nbsp; ${s.title}</div></div>`).join('');
+  g.classList.toggle('show');
+}
+document.addEventListener('keydown',e=>{
+  if(e.key==='ArrowRight'||e.key===' ')go(1);
+  else if(e.key==='ArrowLeft')go(-1);
+  else if(e.key.toLowerCase()==='g')toggleGrid();
+  else if(e.key==='Escape')document.getElementById('grid').classList.remove('show');
+});
+render();
+</script>
+</body></html>

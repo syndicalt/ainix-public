@@ -1,0 +1,412 @@
+<!doctype html><html lang="en" data-theme="dark"><head>
+<meta charset="utf-8"><title>Ainix — Diff Review</title>
+<link rel="stylesheet" href="tokens.css"><link rel="stylesheet" href="app.css">
+<style>
+body {
+  padding: 20px;
+  display: grid;
+  place-items: center;
+  background: radial-gradient(120% 120% at 30% 0%, oklch(0.26 0.03 264) 0%, oklch(0.18 0.012 264) 55%);
+}
+
+/* body override: 3-col (rail | main | gate) */
+.body.diff-layout {
+  grid-template-columns: 232px 1fr 300px;
+}
+
+/* rationale panel above diff */
+.rationale {
+  background: var(--surface-1);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-md);
+  padding: var(--s3);
+  margin-bottom: var(--s3);
+}
+.rationale p {
+  font-size: var(--t-sm);
+  color: var(--text-2);
+  line-height: 1.6;
+}
+.rationale p code {
+  font-size: var(--t-xs);
+}
+
+/* evidence panel */
+.evidence-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s2);
+  margin-bottom: var(--s3);
+}
+.evidence-item {
+  display: grid;
+  grid-template-columns: 18px 1fr;
+  gap: var(--s2);
+  align-items: start;
+}
+.evidence-num {
+  width: 18px;
+  height: 18px;
+  border-radius: var(--r-xs);
+  background: var(--accent-quiet);
+  color: var(--accent);
+  font-size: var(--t-2xs);
+  font-weight: 700;
+  display: grid;
+  place-items: center;
+  flex: none;
+  margin-top: 1px;
+}
+.evidence-num.inf {
+  background: var(--inferred-bg);
+  color: var(--inferred);
+}
+
+/* hunk header with checkbox */
+.hunk-header {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  background: var(--surface-1);
+  border-top: 1px solid var(--hairline);
+  border-bottom: 1px solid var(--hairline);
+  padding: 5px var(--s2);
+}
+.hunk-header:first-of-type { border-top: 0; }
+.hunk-cb {
+  width: 15px;
+  height: 15px;
+  border-radius: 4px;
+  border: 1.5px solid var(--accent);
+  background: var(--accent-quiet);
+  display: grid;
+  place-items: center;
+  flex: none;
+}
+.hunk-cb svg { color: var(--accent); }
+.hunk-label {
+  font-family: var(--mono);
+  font-size: var(--t-xs);
+  color: var(--text-3);
+}
+.hunk-label b { color: var(--text-2); font-weight: 500; }
+
+/* file block separator */
+.diff-file-block { margin-bottom: var(--s3); }
+.diff-file-block:last-child { margin-bottom: 0; }
+
+/* gate column */
+.gate-col {
+  background: var(--surface-1);
+  border-left: 1px solid var(--hairline);
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+.gate-head {
+  padding: var(--s3) var(--s3) var(--s2);
+  border-bottom: 1px solid var(--hairline);
+}
+.gate-body {
+  padding: var(--s3);
+  overflow-y: auto;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s3);
+}
+
+/* file-select summary row */
+.file-sel-row {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  padding: var(--s1) var(--s2);
+  border-radius: var(--r-sm);
+  font-size: var(--t-sm);
+}
+.file-sel-row.included { background: var(--accent-quiet); color: var(--text); }
+.file-sel-row.included .fpath { font-family: var(--mono); font-size: var(--t-xs); color: var(--text-2); }
+.file-sel-cb {
+  width: 15px; height: 15px; border-radius: 4px;
+  border: 1.5px solid var(--accent); background: var(--accent-quiet);
+  display: grid; place-items: center; flex: none;
+}
+.file-sel-cb svg { color: var(--accent); }
+
+/* apply button area */
+.apply-area {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s2);
+  margin-top: auto;
+}
+.apply-gate-note {
+  font-size: var(--t-xs);
+  color: var(--text-4);
+  text-align: center;
+  line-height: 1.35;
+}
+</style>
+</head><body>
+<script src="sprite.js"></script>
+
+<div class="window">
+  <!-- titlebar -->
+  <div class="titlebar">
+    <div class="traffic"><i class="r"></i><i class="y"></i><i class="g"></i></div>
+    <div class="brand"><span class="glyph"><svg class="i sm" style="stroke:var(--on-accent)"><use href="#ic-shield"/></svg></span> Ainix</div>
+    <div class="spacer"></div>
+    <div class="cmd"><svg class="i sm"><use href="#ic-cmd"/></svg> Ask, or run a verified action…<span class="kbd">⌘K</span></div>
+    <div class="spacer"></div>
+    <svg class="i" style="color:var(--text-3)"><use href="#ic-search"/></svg>
+    <div class="chip neutral" style="height:26px"><svg class="i sm"><use href="#ic-user"/></svg> you</div>
+  </div>
+
+  <div class="body diff-layout">
+    <!-- nav rail -->
+    <nav class="rail">
+      <div class="nav"><svg class="i"><use href="#ic-runs"/></svg> Runs</div>
+      <div class="nav active"><svg class="i"><use href="#ic-approve"/></svg> Approvals <span class="count warn">5</span></div>
+      <div class="nav"><svg class="i"><use href="#ic-prov"/></svg> Provenance</div>
+      <div class="nav"><svg class="i"><use href="#ic-policy"/></svg> Policies</div>
+      <div class="nav"><svg class="i"><use href="#ic-artifact"/></svg> Artifacts</div>
+      <div class="nav"><svg class="i"><use href="#ic-session"/></svg> Sessions</div>
+      <div class="grp">Recent runs</div>
+      <div class="nav" style="font-weight:500"><svg class="i" style="color:var(--verified)"><use href="#ic-check"/></svg> #4126 index reindex</div>
+      <div class="nav" style="font-weight:500;color:var(--text)"><svg class="i" style="color:var(--accent)"><use href="#ic-dot"/></svg> #4127 RUSTSEC patch</div>
+      <div class="nav" style="font-weight:500"><svg class="i" style="color:var(--verified)"><use href="#ic-check"/></svg> #4125 fmt sweep</div>
+      <div class="spacer"></div>
+      <div class="nav"><svg class="i"><use href="#ic-undo"/></svg> Time-travel</div>
+    </nav>
+
+    <!-- main content: diff view -->
+    <div class="content">
+      <div class="toolbar">
+        <div class="stack" style="gap:2px">
+          <h2 style="font-size:var(--t-md)">Proposal #2 · src/tls.rs API adaptation</h2>
+          <div class="sub flex gap2">
+            <span>run #4127 · RUSTSEC-2026-0041</span>
+            <span>·</span>
+            <span class="flex gap1"><svg class="i sm"><use href="#ic-file"/></svg> 2 of 2 files</span>
+          </div>
+        </div>
+        <div class="spacer"></div>
+        <div class="seg">
+          <button class="on">Unified</button>
+          <button>Split</button>
+        </div>
+        <button class="btn ghost sm"><svg class="i sm"><use href="#ic-chev"/></svg> Prev hunk</button>
+        <button class="btn ghost sm">Next hunk <svg class="i sm"><use href="#ic-chev"/></svg></button>
+      </div>
+
+      <div class="scroll tight">
+
+        <!-- Rationale with sentence-granular citation markers -->
+        <div class="rationale" style="padding:var(--s2) var(--s3);margin-bottom:var(--s2)">
+          <div class="section-label" style="margin-bottom:var(--s1)">Agent rationale — Proposal #2</div>
+          <p style="line-height:1.55">
+            Bump <code>openssl</code> to <code>0.10.72</code> <span class="cite">1</span> to clear
+            <code>RUSTSEC-2026-0041</code> <span class="cite">2</span>, a TLS certificate-verification bypass introduced in <code>0.10.65</code>.
+            The 0.10.72 release renames <code>SslVerifyMode::NONE</code> to <code>SslVerifyMode::PEER</code> <span class="cite">3</span> — a breaking change requiring the call site at <code>src/tls.rs:47</code> to be adapted.
+            No semantic change: the renamed constant carries the same bit-flag value <span class="cite inferred">4</span>; the test suite covers all affected code paths <span class="cite">5</span>.
+          </p>
+        </div>
+
+        <!-- Evidence panel: verbatim sources (compact) -->
+        <div class="evidence-panel" style="gap:var(--s1)">
+          <div class="section-label" style="margin-bottom:var(--s1)">Sources</div>
+
+          <div class="evidence-item">
+            <div class="evidence-num">1</div>
+            <div class="evidence" style="padding:var(--s1) var(--s2)">
+              <div class="src"><svg class="i sm"><use href="#ic-link"/></svg> crates/ainix-api/Cargo.toml · current manifest</div>
+              <q>openssl = "0.10.64" → proposed: "0.10.72"</q>
+            </div>
+          </div>
+
+          <div class="evidence-item">
+            <div class="evidence-num">2</div>
+            <div class="evidence" style="padding:var(--s1) var(--s2)">
+              <div class="src"><svg class="i sm"><use href="#ic-link"/></svg> RUSTSEC-2026-0041 advisory · verbatim</div>
+              <q>"Versions 0.10.65–0.10.71 do not correctly propagate hostname verification flags, allowing a remote server to present an invalid certificate without triggering an error."</q>
+            </div>
+          </div>
+
+          <div class="evidence-item">
+            <div class="evidence-num">3</div>
+            <div class="evidence" style="padding:var(--s1) var(--s2)">
+              <div class="src"><svg class="i sm"><use href="#ic-link"/></svg> openssl-rs CHANGELOG 0.10.72 · verbatim</div>
+              <q>"[BREAKING] SslVerifyMode::NONE has been renamed to SslVerifyMode::PEER. The previous name is removed; using it will result in a compile error."</q>
+            </div>
+          </div>
+
+          <div class="evidence-item">
+            <div class="evidence-num inf">4</div>
+            <div class="evidence" style="padding:var(--s1) var(--s2);border-left-color:var(--inferred)">
+              <div class="src" style="color:var(--inferred)"><svg class="i sm"><use href="#ic-warn"/></svg> Model inferred — verify independently</div>
+              <q>Constant value inferred unchanged from openssl-sys source; no changelog note confirms bit-for-bit equivalence.</q>
+            </div>
+          </div>
+
+          <div class="evidence-item">
+            <div class="evidence-num">5</div>
+            <div class="evidence" style="padding:var(--s1) var(--s2)">
+              <div class="src"><svg class="i sm"><use href="#ic-link"/></svg> cargo test -p ainix-api · run #4127 · 14:00:12Z</div>
+              <q>"test result: ok. 41 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out"</q>
+            </div>
+          </div>
+        </div>
+
+        <!-- FILE 1: Cargo.toml diff -->
+        <div class="diff-file-block">
+          <div class="diff">
+            <div class="fname">
+              <svg class="i sm"><use href="#ic-file"/></svg>
+              crates/ainix-api/Cargo.toml
+              <div class="spacer"></div>
+              <span class="chip verified" style="height:20px;font-size:var(--t-2xs)">+1 −1</span>
+            </div>
+
+            <!-- hunk 1 with checkbox -->
+            <div class="hunk-header">
+              <div class="hunk-cb"><svg class="i sm"><use href="#ic-check"/></svg></div>
+              <span class="hunk-label">@@ -22,7 +22,7 @@ <b>[dependencies]</b></span>
+              <div class="spacer"></div>
+              <span style="font-size:var(--t-2xs);color:var(--text-4)">hunk 1 of 1 · selected</span>
+            </div>
+            <div class="row"><div class="ln">22</div><div class="tx"> [dependencies]</div></div>
+            <div class="row"><div class="ln">23</div><div class="tx"> tokio = { version = "1", features = ["full"] }</div></div>
+            <div class="row del"><div class="ln">24</div><div class="tx">-openssl = "0.10.64"</div></div>
+            <div class="row add"><div class="ln">24</div><div class="tx">+openssl = "0.10.72"</div></div>
+            <div class="row"><div class="ln">25</div><div class="tx"> serde = { version = "1", features = ["derive"] }</div></div>
+            <div class="row"><div class="ln">26</div><div class="tx"> tracing = "0.1"</div></div>
+          </div>
+        </div>
+
+        <!-- FILE 2: src/tls.rs diff -->
+        <div class="diff-file-block">
+          <div class="diff">
+            <div class="fname">
+              <svg class="i sm"><use href="#ic-file"/></svg>
+              crates/ainix-api/src/tls.rs
+              <div class="spacer"></div>
+              <span class="chip verified" style="height:20px;font-size:var(--t-2xs)">+3 −1</span>
+            </div>
+
+            <!-- hunk 1: rename + verify_depth -->
+            <div class="hunk-header">
+              <div class="hunk-cb"><svg class="i sm"><use href="#ic-check"/></svg></div>
+              <span class="hunk-label">@@ -44,8 +44,10 @@ <b>pub fn build_connector</b>(…) → Result&lt;SslConnector&gt;</span>
+              <div class="spacer"></div>
+              <span style="font-size:var(--t-2xs);color:var(--text-4)">hunk 1 of 2 · selected</span>
+            </div>
+            <div class="row"><div class="ln">44</div><div class="tx"> pub fn build_connector(domain: &amp;str) -&gt; Result&lt;SslConnector&gt; {</div></div>
+            <div class="row"><div class="ln">45</div><div class="tx">     let mut builder = SslConnector::builder(SslMethod::tls())?;</div></div>
+            <div class="row"><div class="ln">46</div><div class="tx">     builder.set_ca_file("/etc/ssl/certs/ca-certificates.crt")?;</div></div>
+            <div class="row del"><div class="ln">47</div><div class="tx">-    builder.set_verify(SslVerifyMode::NONE);</div></div>
+            <div class="row add"><div class="ln">47</div><div class="tx">+    // SslVerifyMode renamed in openssl 0.10.72 (RUSTSEC-2026-0041 fix)</div></div>
+            <div class="row add"><div class="ln">48</div><div class="tx">+    builder.set_verify(SslVerifyMode::PEER);</div></div>
+            <div class="row add"><div class="ln">49</div><div class="tx">+    builder.set_verify_depth(4);</div></div>
+            <div class="row"><div class="ln">50</div><div class="tx">     Ok(builder.build())</div></div>
+            <div class="row"><div class="ln">51</div><div class="tx"> }</div></div>
+
+            <!-- hunk 2: import update -->
+            <div class="hunk-header">
+              <div class="hunk-cb"><svg class="i sm"><use href="#ic-check"/></svg></div>
+              <span class="hunk-label">@@ -3,7 +3,7 @@ <b>use openssl::ssl::</b></span>
+              <div class="spacer"></div>
+              <span style="font-size:var(--t-2xs);color:var(--text-4)">hunk 2 of 2 · selected</span>
+            </div>
+            <div class="row"><div class="ln"> 3</div><div class="tx"> use openssl::ssl::{</div></div>
+            <div class="row del"><div class="ln"> 4</div><div class="tx">-    SslConnector, SslMethod, SslVerifyMode,</div></div>
+            <div class="row add"><div class="ln"> 4</div><div class="tx">+    SslConnector, SslMethod, SslVerifyMode, SslVerifyDepth,</div></div>
+            <div class="row"><div class="ln"> 5</div><div class="tx"> };</div></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- gate column: preconditions + apply -->
+    <div class="gate-col">
+      <div class="gate-head">
+        <div class="section-label" style="margin-bottom:var(--s1)">Scope · 2 files selected</div>
+        <div class="file-sel-row included">
+          <div class="file-sel-cb"><svg class="i sm"><use href="#ic-check"/></svg></div>
+          <div>
+            <div style="font-size:var(--t-xs);font-weight:600">Cargo.toml</div>
+            <div class="fpath">crates/ainix-api/ · 1 hunk</div>
+          </div>
+        </div>
+        <div class="file-sel-row included" style="margin-top:4px">
+          <div class="file-sel-cb"><svg class="i sm"><use href="#ic-check"/></svg></div>
+          <div>
+            <div style="font-size:var(--t-xs);font-weight:600">src/tls.rs</div>
+            <div class="fpath">crates/ainix-api/ · 2 hunks</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="gate-body">
+
+        <!-- live precondition checklist -->
+        <div class="stack" style="gap:var(--s1)">
+          <div class="section-label">Live preconditions</div>
+          <div class="checklist">
+            <div class="check ok">
+              <span class="mk"><svg class="i sm"><use href="#ic-check"/></svg></span>
+              <span>Dry-run passed<br><span style="font-size:var(--t-xs);color:var(--text-4)">cargo check exits 0 · 14:00:08Z</span></span>
+            </div>
+            <div class="check ok">
+              <span class="mk"><svg class="i sm"><use href="#ic-check"/></svg></span>
+              <span>Policy check passed<br><span style="font-size:var(--t-xs);color:var(--text-4)">fs:write · cargo:read-write</span></span>
+            </div>
+            <div class="check ok">
+              <span class="mk"><svg class="i sm"><use href="#ic-check"/></svg></span>
+              <span>Cost within budget<br><span style="font-size:var(--t-xs);color:var(--text-4)">0 API calls · $0.00</span></span>
+            </div>
+            <div class="check ok">
+              <span class="mk"><svg class="i sm"><use href="#ic-check"/></svg></span>
+              <span>No conflicting change<br><span style="font-size:var(--t-xs);color:var(--text-4)">no in-flight edits on tls.rs</span></span>
+            </div>
+          </div>
+        </div>
+
+        <hr class="div">
+
+        <!-- integrity -->
+        <div class="stack" style="gap:var(--s1)">
+          <div class="section-label">Chain integrity</div>
+          <div style="display:flex;align-items:center;gap:var(--s2);padding:var(--s2);background:var(--verified-bg);border-radius:var(--r-sm)">
+            <svg class="i sm" style="color:var(--verified)"><use href="#ic-prov"/></svg>
+            <span style="font-size:var(--t-xs);color:var(--text-2)">Event chain intact · proposer: <span style="font-family:var(--mono)">rustsec-agent</span></span>
+          </div>
+        </div>
+
+        <hr class="div">
+
+        <!-- verdict + apply -->
+        <div class="stack" style="gap:var(--s2)">
+          <div class="section-label">Verdict</div>
+          <button class="btn primary" style="justify-content:center;width:100%">
+            <svg class="i sm"><use href="#ic-check"/></svg> Approve &amp; apply
+          </button>
+          <button class="btn" style="justify-content:center;width:100%">
+            <svg class="i sm"><use href="#ic-flag"/></svg> Request changes
+          </button>
+          <button class="btn ghost" style="justify-content:center;width:100%">
+            <svg class="i sm"><use href="#ic-eye"/></svg> Comment only
+          </button>
+          <div class="apply-gate-note">
+            All preconditions green — Apply is enabled.<br>
+            Your approval is recorded as human co-author alongside agent rustsec-agent.
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+</body></html>

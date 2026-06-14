@@ -1,0 +1,172 @@
+<!doctype html><html lang="en" data-theme="dark"><head>
+<meta charset="utf-8"><title>Ainix — Summon (work surface)</title>
+<link rel="stylesheet" href="tokens.css"><link rel="stylesheet" href="app.css">
+<style>
+body{padding:20px;display:grid;place-items:center;background:
+  radial-gradient(120% 120% at 30% 0%, oklch(0.26 0.03 264) 0%, oklch(0.18 0.012 264) 55%);}
+
+/* the dimmed shell behind, to show "summoned over your screen" */
+.backdrop{position:absolute;inset:0;filter:saturate(.7);}
+.backdrop .content{opacity:.5}
+.scrim{position:absolute;inset:0;background:oklch(0.13 0.012 264 / .60);
+  backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px);}
+
+/* the summon HUD */
+.summon{position:absolute;top:96px;left:50%;transform:translateX(-50%);
+  width:760px;max-width:92%;background:var(--surface-2);border:1px solid var(--hairline-2);
+  border-radius:var(--r-xl);box-shadow:0 40px 100px oklch(0 0 0 / .6),0 10px 30px oklch(0 0 0 /.45),var(--sheen);
+  overflow:hidden;display:flex;flex-direction:column;max-height:760px;}
+.summon .glow{height:3px;background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:.8}
+
+/* context strip */
+.ctx{display:flex;align-items:center;gap:var(--s2);flex-wrap:wrap;padding:var(--s3) var(--s3) var(--s2);}
+.ctx .lbl{font-size:var(--t-2xs);text-transform:uppercase;letter-spacing:.07em;color:var(--text-4);
+  font-weight:600;display:flex;align-items:center;gap:6px;margin-right:2px}
+.cchip{display:inline-flex;align-items:center;gap:6px;height:24px;padding:0 8px;border-radius:var(--r-sm);
+  background:var(--accent-quiet);color:var(--accent);font-size:var(--t-xs);font-weight:600}
+.cchip.live{box-shadow:0 0 0 1px var(--accent-line) inset}
+.cchip .x{color:var(--accent);opacity:.6;cursor:pointer}
+.cchip.add{background:transparent;color:var(--text-3);border:1px dashed var(--hairline-2)}
+
+/* compose */
+.compose{padding:var(--s2) var(--s3) var(--s3);}
+.compose .input{font-size:var(--t-md);color:var(--text);line-height:1.5;min-height:30px;padding:var(--s1) 0}
+.compose .input .ph{color:var(--text-3)}
+.compose .caret{display:inline-block;width:2px;height:19px;background:var(--accent);
+  vertical-align:-4px;margin-left:1px;border-radius:2px}
+.atts{display:flex;gap:var(--s2);margin-top:var(--s2);flex-wrap:wrap}
+.att{display:flex;align-items:center;gap:var(--s2);height:38px;padding:0 var(--s2) 0 4px;border-radius:var(--r-sm);
+  background:var(--surface-3);border:1px solid var(--hairline);font-size:var(--t-sm)}
+.att .thumb{width:30px;height:30px;border-radius:6px;display:grid;place-items:center;color:var(--on-accent)}
+.att .meta{display:flex;flex-direction:column;line-height:1.25}
+.att .meta b{font-weight:600;font-size:var(--t-sm)}
+.att .meta span{font-size:var(--t-2xs);color:var(--text-3)}
+.att .x{color:var(--text-4);margin-left:4px;cursor:pointer}
+.attadd{color:var(--text-3);font-size:var(--t-sm);display:flex;align-items:center;gap:6px;height:38px}
+
+/* working area — proposals + semantic objects (NOT a transcript) */
+.work{border-top:1px solid var(--hairline);background:var(--surface-1);
+  padding:var(--s3);overflow-y:auto;display:flex;flex-direction:column;gap:var(--s3)}
+.wsec .h{font-size:var(--t-2xs);text-transform:uppercase;letter-spacing:.07em;color:var(--text-4);
+  font-weight:600;margin-bottom:var(--s2);display:flex;align-items:center;gap:6px}
+.wrow{display:flex;align-items:center;gap:var(--s3);padding:var(--s2) var(--s2);border-radius:var(--r-sm);
+  background:var(--surface-2);border:1px solid var(--hairline)}
+.wrow+.wrow{margin-top:6px}
+.wrow .ico{width:30px;height:30px;border-radius:var(--r-sm);display:grid;place-items:center;flex:none;
+  background:var(--surface-3);color:var(--text-2)}
+.wrow .ico.act{background:var(--accent-quiet);color:var(--accent)}
+.wrow .ico.ok{background:var(--verified-bg);color:var(--verified)}
+.wrow .t{flex:1;min-width:0}
+.wrow .t b{font-weight:600}
+.wrow .t .d{font-size:var(--t-sm);color:var(--text-3);margin-top:1px}
+.wrow .t .d code{font-family:var(--mono);font-size:.92em}
+
+/* footer */
+.foot{display:flex;align-items:center;gap:var(--s3);padding:var(--s2) var(--s3);
+  border-top:1px solid var(--hairline);background:var(--surface-2)}
+.foot .h{display:flex;align-items:center;gap:5px;font-size:var(--t-xs);color:var(--text-3)}
+.ctxnote{font-size:var(--t-xs);color:var(--text-4);display:flex;align-items:center;gap:6px;padding:0 var(--s3) var(--s2)}
+.ctxnote a{color:var(--text-3);text-decoration:underline;text-decoration-color:var(--hairline-2);cursor:pointer}
+.steps{font-size:var(--t-xs);color:var(--text-3);display:flex;align-items:center;gap:var(--s3);flex-wrap:wrap;
+  padding-bottom:var(--s2);margin-bottom:var(--s1);border-bottom:1px solid var(--hairline)}
+.steps .s{display:inline-flex;align-items:center;gap:5px}
+.steps .s.ok{color:var(--verified)}
+</style></head><body>
+<script src="sprite.js"></script>
+
+<div class="window">
+  <!-- dimmed shell behind (you summoned this over the run timeline) -->
+  <div class="backdrop">
+    <div class="titlebar">
+      <div class="traffic"><i class="r"></i><i class="y"></i><i class="g"></i></div>
+      <div class="brand"><span class="glyph"><svg class="i sm" style="stroke:var(--on-accent)"><use href="#ic-shield"/></svg></span> Ainix</div>
+      <div class="spacer"></div><div class="spacer"></div>
+    </div>
+    <div class="body">
+      <nav class="rail">
+        <div class="nav active"><svg class="i"><use href="#ic-runs"/></svg> Runs</div>
+        <div class="nav"><svg class="i"><use href="#ic-approve"/></svg> Approvals <span class="count warn">2</span></div>
+        <div class="nav"><svg class="i"><use href="#ic-prov"/></svg> Provenance</div>
+        <div class="nav"><svg class="i"><use href="#ic-policy"/></svg> Policies</div>
+      </nav>
+      <div class="content">
+        <div class="toolbar"><h2>Run #4127 · Resolve RUSTSEC-2026-0041</h2></div>
+        <div class="scroll"><div class="timeline">
+          <div class="evt"><div class="ts">13:58:02</div><div class="gut"><div class="node verified"></div></div><div class="main"><div class="line1"><span class="actor human">you</span><span class="act">requested</span></div></div><div class="right"></div></div>
+          <div class="evt"><div class="ts">13:58:03</div><div class="gut"><div class="node accent"></div></div><div class="main"><div class="line1"><span class="actor agent">agent</span><span class="act">planned</span><span class="chip neutral">4 steps</span></div></div><div class="right"></div></div>
+          <div class="evt depth1"><div class="ts">13:59:02</div><div class="gut"><div class="node verified"></div></div><div class="main"><div class="line1"><span class="actor agent">agent</span><span class="act">applied</span><span class="target">src/tls.rs</span></div></div><div class="right"></div></div>
+          <div class="evt depth1"><div class="ts">14:00:12</div><div class="gut"><div class="node verified"></div></div><div class="main"><div class="line1"><span class="actor agent">agent</span><span class="act">ran</span><span class="target">cargo test</span></div></div><div class="right"></div></div>
+        </div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="scrim"></div>
+
+  <!-- the summon HUD -->
+  <div class="summon">
+    <div class="glow"></div>
+
+    <div class="ctx">
+      <span class="lbl"><svg class="i sm"><use href="#ic-eye"/></svg> Context</span>
+      <span class="cchip live"><svg class="i sm"><use href="#ic-runs"/></svg> Run #4127 · timeline <span class="x"><svg class="i sm"><use href="#ic-x"/></svg></span></span>
+      <span class="cchip"><svg class="i sm"><use href="#ic-file"/></svg> src/tls.rs : 88 <span class="x"><svg class="i sm"><use href="#ic-x"/></svg></span></span>
+      <span class="cchip add"><svg class="i sm"><use href="#ic-link"/></svg> add context</span>
+    </div>
+    <div class="ctxnote"><svg class="i sm"><use href="#ic-shield"/></svg> Declarative context — 3 structured signals, inspectable · nothing scraped from your screen · <a>view what Ainix sees</a></div>
+
+    <div class="compose">
+      <div class="input">Finish the advisory — patch the call site for the renamed <code style="font-family:var(--mono);font-size:.95em;color:var(--accent)">SslVerifyMode</code>, then re-run the api tests<span class="caret"></span></div>
+      <div class="atts">
+        <div class="att"><span class="thumb" style="background:linear-gradient(135deg,var(--inferred),var(--accent))"><svg class="i sm" style="stroke:var(--on-accent)"><use href="#ic-eye"/></svg></span><span class="meta"><b>screenshot 14:31</b><span>pasted · clippy output</span></span><span class="x"><svg class="i sm"><use href="#ic-x"/></svg></span></div>
+        <div class="att"><span class="thumb" style="background:var(--surface-hi);color:var(--text-2)"><svg class="i sm"><use href="#ic-file"/></svg></span><span class="meta"><b>RUSTSEC-2026-0041.pdf</b><span>dropped · 2 pages</span></span><span class="x"><svg class="i sm"><use href="#ic-x"/></svg></span></div>
+        <div class="attadd"><svg class="i sm"><use href="#ic-link"/></svg> drop files · paste images</div>
+      </div>
+    </div>
+
+    <div class="work">
+      <div class="steps"><span class="s ok"><svg class="i sm"><use href="#ic-check"/></svg> read src/tls.rs</span><span class="s ok"><svg class="i sm"><use href="#ic-check"/></svg> matched 3 objects by meaning</span><span class="s ok"><svg class="i sm"><use href="#ic-check"/></svg> checked policy</span><span class="s">drafted in 0.8s — no action taken yet</span></div>
+      <div class="wsec">
+        <div class="h"><svg class="i sm" style="color:var(--accent)"><use href="#ic-bolt"/></svg> Proposed — nothing runs until you approve · becomes <b style="color:var(--text-2)">Run #4128</b></div>
+        <div class="wrow">
+          <span class="ico act"><svg class="i sm"><use href="#ic-file"/></svg></span>
+          <div class="t"><b>Patch <code>src/tls.rs:88</code> call site</b><div class="d"><code>+3 −1</code> · reversible (git-backed) · cited to openssl CHANGELOG</div></div>
+          <button class="btn primary sm"><svg class="i sm"><use href="#ic-arrow"/></svg> Review &amp; run</button>
+        </div>
+        <div class="wrow">
+          <span class="ico"><svg class="i sm"><use href="#ic-term"/></svg></span>
+          <div class="t"><b>Re-run <code>cargo test -p ainix-api</code></b><div class="d">auto-allowed by policy · read-only, no blast radius</div></div>
+          <button class="btn sm"><svg class="i sm"><use href="#ic-play"/></svg> Run</button>
+        </div>
+      </div>
+
+      <div class="wsec">
+        <div class="h"><svg class="i sm"><use href="#ic-search"/></svg> From your semantic filesystem — matched by meaning</div>
+        <div class="wrow">
+          <span class="ico ok"><svg class="i sm"><use href="#ic-prov"/></svg></span>
+          <div class="t"><b>RUSTSEC-2026-0041 advisory</b><div class="d">verified source · already cited in this run</div></div>
+          <span class="chip verified" style="height:20px"><span class="dot"></span>linked</span>
+        </div>
+        <div class="wrow">
+          <span class="ico"><svg class="i sm"><use href="#ic-runs"/></svg></span>
+          <div class="t"><b>Run #4126 — similar openssl bump</b><div class="d">3 days ago · reusable plan + approved diff</div></div>
+          <button class="btn ghost sm">Reuse plan</button>
+        </div>
+        <div class="wrow">
+          <span class="ico"><svg class="i sm"><use href="#ic-artifact"/></svg></span>
+          <div class="t"><b>tls-hardening.md</b><div class="d">semantic match · your note on verify-mode defaults</div></div>
+          <button class="btn ghost sm">Open</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="foot">
+      <span class="h"><span class="kbd">↵</span> Run → creates Run #4128 in your timeline</span>
+      <span class="h"><span class="kbd">⌘↵</span> Plan first</span>
+      <span class="h"><span class="kbd">⎋</span> Dismiss</span>
+      <span class="spacer"></span>
+      <span class="h" style="color:var(--verified)"><svg class="i sm"><use href="#ic-lock"/></svg> every action it takes is gated &amp; signed</span>
+    </div>
+  </div>
+</div>
+</body></html>

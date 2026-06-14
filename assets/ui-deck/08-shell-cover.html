@@ -1,0 +1,87 @@
+<!doctype html><html lang="en" data-theme="dark"><head>
+<meta charset="utf-8"><title>Ainix — Shell</title>
+<link rel="stylesheet" href="tokens.css"><link rel="stylesheet" href="app.css">
+<style>
+body{padding:20px;display:grid;place-items:center;background:
+  radial-gradient(120% 120% at 30% 0%, oklch(0.26 0.03 264) 0%, oklch(0.18 0.012 264) 55%);}
+.home{flex:1;min-height:0;overflow-y:auto;display:flex;flex-direction:column;
+  align-items:center;padding:var(--s6) var(--s6) var(--s4);}
+.home .mark{width:58px;height:58px;border-radius:var(--r-lg);display:grid;place-items:center;
+  background:linear-gradient(145deg,var(--accent),var(--accent-press));box-shadow:var(--shadow-3),var(--sheen);
+  margin-bottom:var(--s3);}
+.home h1{font-size:var(--t-3xl);letter-spacing:-0.03em;}
+.home .tag{color:var(--text-3);font-size:var(--t-md);margin-top:var(--s2);}
+.bigcmd{width:680px;max-width:100%;height:52px;margin:var(--s5) 0 var(--s4);display:flex;align-items:center;
+  gap:var(--s3);padding:0 var(--s3);border-radius:var(--r-lg);background:var(--surface-2);
+  border:1px solid var(--hairline-2);box-shadow:var(--shadow-2),var(--sheen);color:var(--text-3);font-size:var(--t-md);}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--s3);width:840px;max-width:100%;}
+.stat{padding:var(--s3);display:flex;flex-direction:column;gap:6px;}
+.stat .n{font-size:var(--t-xl);font-weight:600;letter-spacing:-0.02em;}
+.stat .l{color:var(--text-3);font-size:var(--t-sm);display:flex;align-items:center;gap:6px;}
+.recent{width:840px;max-width:100%;margin-top:var(--s5);}
+.runrow{display:flex;align-items:center;gap:var(--s3);padding:var(--s3);border-radius:var(--r-md);}
+.runrow:hover{background:var(--surface-1);}
+.runrow .id{font-family:var(--mono);font-size:var(--t-sm);color:var(--text-3);width:56px;}
+.runrow .t{font-weight:500;}
+.foot{margin-top:var(--s5);color:var(--text-4);font-size:var(--t-sm);text-align:center;}
+.foot b{color:var(--text-2);font-weight:600;}
+</style></head><body>
+<script src="sprite.js"></script>
+
+<div class="window">
+  <div class="titlebar">
+    <div class="traffic"><i class="r"></i><i class="y"></i><i class="g"></i></div>
+    <div class="brand"><span class="glyph"><svg class="i sm" style="stroke:var(--on-accent)"><use href="#ic-shield"/></svg></span> Ainix</div>
+    <div class="spacer"></div>
+    <div class="chip verified" style="height:26px"><svg class="i sm"><use href="#ic-prov"/></svg> all chains intact</div>
+    <div class="spacer"></div>
+    <svg class="i" style="color:var(--text-3)"><use href="#ic-search"/></svg>
+    <div class="chip neutral" style="height:26px"><svg class="i sm"><use href="#ic-user"/></svg> you</div>
+  </div>
+
+  <div class="body">
+    <nav class="rail">
+      <div class="nav active"><svg class="i"><use href="#ic-dot"/></svg> Home</div>
+      <div class="nav"><svg class="i"><use href="#ic-runs"/></svg> Runs</div>
+      <div class="nav"><svg class="i"><use href="#ic-approve"/></svg> Approvals <span class="count warn">2</span></div>
+      <div class="nav"><svg class="i"><use href="#ic-prov"/></svg> Provenance</div>
+      <div class="nav"><svg class="i"><use href="#ic-policy"/></svg> Policies</div>
+      <div class="nav"><svg class="i"><use href="#ic-artifact"/></svg> Artifacts</div>
+      <div class="nav"><svg class="i"><use href="#ic-session"/></svg> Sessions</div>
+      <div class="spacer"></div>
+      <div class="nav"><svg class="i"><use href="#ic-undo"/></svg> Time-travel</div>
+    </nav>
+
+    <div class="content">
+      <div class="home">
+        <div class="mark"><svg class="i lg" style="width:30px;height:30px;stroke:var(--on-accent)"><use href="#ic-shield"/></svg></div>
+        <h1>Welcome back</h1>
+        <div class="tag">Ask a question, or describe an action to run — every action is signed, gated, and verifiable.</div>
+
+        <div class="bigcmd"><svg class="i lg"><use href="#ic-cmd"/></svg> Ask anything, or run a verified action…<span class="spacer"></span><span class="kbd">⌘K</span></div>
+
+        <div class="stats">
+          <div class="stat card"><div class="n">12,840</div><div class="l"><svg class="i sm" style="color:var(--verified)"><use href="#ic-lock"/></svg> events signed today · chain intact</div></div>
+          <div class="stat card"><div class="n" style="color:var(--review)">2</div><div class="l"><svg class="i sm" style="color:var(--review)"><use href="#ic-approve"/></svg> actions awaiting your approval</div></div>
+          <div class="stat card"><div class="n" style="color:var(--verified)">14:02Z</div><div class="l"><svg class="i sm" style="color:var(--verified)"><use href="#ic-prov"/></svg> last integrity check · passed</div></div>
+        </div>
+
+        <div class="recent">
+          <div class="row-between" style="margin-bottom:var(--s2)"><div class="section-label">Recent runs</div><a class="muted" style="font-size:var(--t-sm)">View all</a></div>
+          <div class="card" style="padding:var(--s1)">
+            <div class="runrow"><span class="id">#4127</span><svg class="i" style="color:var(--review)"><use href="#ic-clock"/></svg><span class="t">Resolve RUSTSEC-2026-0041</span><span class="muted" style="font-size:var(--t-sm)">ainix-api · running</span><span class="spacer"></span><span class="chip review"><span class="dot"></span>1 approval pending</span></div>
+            <hr class="div">
+            <div class="runrow"><span class="id">#4126</span><svg class="i" style="color:var(--verified)"><use href="#ic-check"/></svg><span class="t">storage index migration &amp; reindex</span><span class="muted" style="font-size:var(--t-sm)">ainix-storage · 6m ago</span><span class="spacer"></span><span class="chip verified"><span class="dot"></span>verified · 211 events</span></div>
+            <hr class="div">
+            <div class="runrow"><span class="id">#4125</span><svg class="i" style="color:var(--verified)"><use href="#ic-check"/></svg><span class="t">workspace fmt + clippy sweep</span><span class="muted" style="font-size:var(--t-sm)">workspace · 41m ago</span><span class="spacer"></span><span class="chip verified"><span class="dot"></span>verified · 38 events</span></div>
+            <hr class="div">
+            <div class="runrow"><span class="id">#4124</span><svg class="i" style="color:var(--verified)"><use href="#ic-check"/></svg><span class="t">bump tokio + re-run slot-admission suite</span><span class="muted" style="font-size:var(--t-sm)">ainix-runtime · 1h ago</span><span class="spacer"></span><span class="chip verified"><span class="dot"></span>verified · 96 events</span></div>
+          </div>
+        </div>
+
+        <div class="foot">The signed event log is the source of truth. Records are a view; the index is rebuildable.<br><b>You can verify everything. That's the whole point.</b></div>
+      </div>
+    </div>
+  </div>
+</div>
+</body></html>

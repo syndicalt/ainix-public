@@ -1,0 +1,601 @@
+<!doctype html><html lang="en" data-theme="dark"><head>
+<meta charset="utf-8"><title>Ainix — Provenance Explorer</title>
+<link rel="stylesheet" href="tokens.css"><link rel="stylesheet" href="app.css">
+<style>
+body {
+  padding: 20px;
+  display: grid;
+  place-items: center;
+  background: radial-gradient(120% 120% at 30% 0%, oklch(0.26 0.03 264) 0%, oklch(0.18 0.012 264) 55%);
+}
+
+/* two-column layout inside content */
+.prov-body {
+  display: grid;
+  grid-template-columns: 210px 1fr;
+  min-height: 0;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* facets sidebar */
+.facets {
+  background: var(--surface-1);
+  border-right: 1px solid var(--hairline);
+  overflow-y: auto;
+  padding: var(--s2) 0;
+  display: flex;
+  flex-direction: column;
+}
+.facet-group {
+  border-bottom: 1px solid var(--hairline);
+  padding: var(--s2) 0;
+}
+.facet-hdr {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--s1) var(--s3);
+  font-size: var(--t-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-3);
+  cursor: pointer;
+}
+.facet-hdr svg { color: var(--text-4); }
+.facet-row {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  padding: 5px var(--s3);
+  font-size: var(--t-sm);
+  color: var(--text-2);
+  cursor: pointer;
+  border-radius: 0;
+  transition: background var(--dur-fast) var(--ease);
+}
+.facet-row:hover { background: var(--surface-2); }
+.facet-row.active {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+.facet-row .cb {
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  border: 1.5px solid var(--hairline-2);
+  background: var(--surface-3);
+  flex: none;
+  display: grid;
+  place-items: center;
+}
+.facet-row.active .cb {
+  background: var(--danger);
+  border-color: var(--danger);
+}
+.facet-row .cnt {
+  margin-left: auto;
+  font-size: var(--t-2xs);
+  font-family: var(--mono);
+  color: var(--text-4);
+}
+.facet-row.active .cnt { color: var(--danger); }
+
+/* main results pane */
+.results-pane {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* search + histogram bar */
+.search-bar {
+  padding: var(--s3) var(--s4) 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s2);
+}
+.search-field {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  height: 36px;
+  padding: 0 var(--s3);
+  border-radius: var(--r-md);
+  background: var(--surface-2);
+  border: 1px solid var(--hairline);
+  color: var(--text-3);
+  font-size: var(--t-sm);
+}
+.search-field input {
+  border: 0;
+  background: transparent;
+  font: inherit;
+  color: var(--text);
+  flex: 1;
+  outline: none;
+}
+.search-field input::placeholder { color: var(--text-4); }
+
+.histo-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s1);
+}
+.histo-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: var(--t-2xs);
+  font-family: var(--mono);
+  color: var(--text-4);
+}
+
+/* event table */
+.evt-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--t-sm);
+}
+.evt-table th {
+  text-align: left;
+  font-size: var(--t-2xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-4);
+  padding: var(--s1) var(--s2);
+  border-bottom: 1px solid var(--hairline);
+  white-space: nowrap;
+}
+.evt-table td {
+  padding: 7px var(--s2);
+  color: var(--text-2);
+  border-bottom: 1px solid var(--hairline);
+  vertical-align: middle;
+}
+.evt-table tr:hover td { background: var(--surface-1); }
+.evt-table tr.flagged td {
+  background: var(--danger-bg);
+  color: var(--text);
+}
+.evt-table tr.flagged:hover td { background: oklch(0.68 0.20 24 / 0.22); }
+.evt-table .actor-cell { font-weight: 600; color: var(--accent); white-space: nowrap; }
+.evt-table .ts-cell { font-family: var(--mono); font-size: var(--t-xs); color: var(--text-4); white-space: nowrap; }
+.evt-table .action-cell { color: var(--text); }
+.evt-table .target-cell { font-family: var(--mono); font-size: var(--t-xs); color: var(--text-2); }
+.evt-table .id-cell { font-family: var(--mono); font-size: var(--t-xs); color: var(--text-4); }
+.evt-table .badge-cell { white-space: nowrap; }
+
+/* gap marker row */
+.gap-row td {
+  padding: 0;
+  border-bottom: 0;
+  background: transparent !important;
+}
+
+/* active filter chip */
+.filter-chips {
+  display: flex;
+  align-items: center;
+  gap: var(--s1);
+  flex-wrap: wrap;
+}
+.filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 22px;
+  padding: 0 8px;
+  border-radius: var(--r-pill);
+  font-size: var(--t-xs);
+  font-weight: 600;
+  background: var(--danger-bg);
+  color: var(--danger);
+  border: 1px solid color-mix(in oklch, var(--danger) 40%, transparent);
+}
+.filter-chip svg { width: 11px; height: 11px; }
+</style>
+</head><body>
+<script src="sprite.js"></script>
+
+<div class="window">
+  <!-- titlebar -->
+  <div class="titlebar">
+    <div class="traffic"><i class="r"></i><i class="y"></i><i class="g"></i></div>
+    <div class="brand"><span class="glyph"><svg class="i sm" style="stroke:var(--on-accent)"><use href="#ic-shield"/></svg></span> Ainix</div>
+    <div class="spacer"></div>
+    <div class="cmd"><svg class="i sm"><use href="#ic-cmd"/></svg> Ask, or run a verified action…<span class="kbd">⌘K</span></div>
+    <div class="spacer"></div>
+    <svg class="i" style="color:var(--text-3)"><use href="#ic-search"/></svg>
+    <div class="chip neutral" style="height:26px"><svg class="i sm"><use href="#ic-user"/></svg> you</div>
+  </div>
+
+  <div class="body">
+    <!-- nav rail -->
+    <nav class="rail">
+      <div class="nav"><svg class="i"><use href="#ic-runs"/></svg> Runs</div>
+      <div class="nav"><svg class="i"><use href="#ic-approve"/></svg> Approvals <span class="count warn">2</span></div>
+      <div class="nav active"><svg class="i"><use href="#ic-prov"/></svg> Provenance</div>
+      <div class="nav"><svg class="i"><use href="#ic-policy"/></svg> Policies</div>
+      <div class="nav"><svg class="i"><use href="#ic-artifact"/></svg> Artifacts</div>
+      <div class="nav"><svg class="i"><use href="#ic-session"/></svg> Sessions</div>
+      <div class="grp">Recent runs</div>
+      <div class="nav" style="font-weight:500"><svg class="i" style="color:var(--verified)"><use href="#ic-check"/></svg> #4126 index reindex</div>
+      <div class="nav" style="font-weight:500;color:var(--text)"><svg class="i" style="color:var(--accent)"><use href="#ic-dot"/></svg> #4127 RUSTSEC patch</div>
+      <div class="nav" style="font-weight:500"><svg class="i" style="color:var(--verified)"><use href="#ic-check"/></svg> #4125 fmt sweep</div>
+      <div class="spacer"></div>
+      <div class="nav"><svg class="i"><use href="#ic-undo"/></svg> Time-travel</div>
+    </nav>
+
+    <!-- content -->
+    <div class="content">
+      <!-- toolbar -->
+      <div class="toolbar">
+        <div class="stack" style="gap:2px">
+          <h2>Provenance explorer</h2>
+          <div class="sub flex gap2">
+            <span>12,840 signed events</span><span>·</span><span>run #4127</span><span>·</span>
+            <span class="flex gap1" style="color:var(--danger)"><svg class="i sm"><use href="#ic-warn"/></svg> 1 integrity failure</span>
+          </div>
+        </div>
+        <div class="spacer"></div>
+        <div class="filter-chips">
+          <span class="section-label" style="margin-right:var(--s1)">Active filter:</span>
+          <span class="filter-chip"><svg class="i"><use href="#ic-x"/></svg> Verification: FAILED</span>
+        </div>
+        <button class="btn ghost"><svg class="i sm"><use href="#ic-filter"/></svg> Filters</button>
+        <button class="btn"><svg class="i sm"><use href="#ic-link"/></svg> Deep-link</button>
+        <button class="btn ghost sm"><svg class="i sm"><use href="#ic-arrow"/></svg> Export</button>
+      </div>
+
+      <!-- two-column provenance layout -->
+      <div class="prov-body">
+
+        <!-- FACETS COLUMN -->
+        <div class="facets">
+
+          <div class="facet-group">
+            <div class="facet-hdr">Verification status <svg class="i sm"><use href="#ic-down"/></svg></div>
+            <div class="facet-row active">
+              <div class="cb"><svg style="width:9px;height:9px;stroke:white;fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-check"/></svg></div>
+              <span>FAILED</span>
+              <span class="cnt">2</span>
+            </div>
+            <div class="facet-row">
+              <div class="cb"></div>
+              <span>VERIFIED</span>
+              <span class="cnt">12,838</span>
+            </div>
+            <div class="facet-row">
+              <div class="cb"></div>
+              <span>PENDING</span>
+              <span class="cnt">0</span>
+            </div>
+          </div>
+
+          <div class="facet-group">
+            <div class="facet-hdr">Agent / Run <svg class="i sm"><use href="#ic-down"/></svg></div>
+            <div class="facet-row">
+              <div class="cb"></div>
+              <span style="font-family:var(--mono);font-size:var(--t-xs)">#4127</span>
+              <span class="cnt">12,840</span>
+            </div>
+            <div class="facet-row">
+              <div class="cb"></div>
+              <span style="font-family:var(--mono);font-size:var(--t-xs)">#4126</span>
+              <span class="cnt">3,214</span>
+            </div>
+            <div class="facet-row">
+              <div class="cb"></div>
+              <span style="font-family:var(--mono);font-size:var(--t-xs)">#4125</span>
+              <span class="cnt">891</span>
+            </div>
+          </div>
+
+          <div class="facet-group">
+            <div class="facet-hdr">Tool <svg class="i sm"><use href="#ic-down"/></svg></div>
+            <div class="facet-row">
+              <div class="cb"></div>
+              <span>file_edit</span>
+              <span class="cnt">4,102</span>
+            </div>
+            <div class="facet-row">
+              <div class="cb"></div>
+              <span>bash_exec</span>
+              <span class="cnt">3,871</span>
+            </div>
+            <div class="facet-row">
+              <div class="cb"></div>
+              <span>file_read</span>
+              <span class="cnt">2,941</span>
+            </div>
+            <div class="facet-row">
+              <div class="cb"></div>
+              <span>plan</span>
+              <span class="cnt">1,926</span>
+            </div>
+          </div>
+
+          <div class="facet-group">
+            <div class="facet-hdr">Action <svg class="i sm"><use href="#ic-down"/></svg></div>
+            <div class="facet-row">
+              <div class="cb"></div>
+              <span>applied</span>
+              <span class="cnt">4,102</span>
+            </div>
+            <div class="facet-row">
+              <div class="cb"></div>
+              <span>ran</span>
+              <span class="cnt">3,871</span>
+            </div>
+            <div class="facet-row">
+              <div class="cb"></div>
+              <span>read</span>
+              <span class="cnt">2,941</span>
+            </div>
+            <div class="facet-row">
+              <div class="cb"></div>
+              <span>proposed</span>
+              <span class="cnt">1,926</span>
+            </div>
+          </div>
+
+          <div class="facet-group">
+            <div class="facet-hdr">Target <svg class="i sm"><use href="#ic-down"/></svg></div>
+            <div class="facet-row">
+              <div class="cb"></div>
+              <span style="font-family:var(--mono);font-size:var(--t-2xs)">src/tls.rs</span>
+              <span class="cnt">38</span>
+            </div>
+            <div class="facet-row">
+              <div class="cb"></div>
+              <span style="font-family:var(--mono);font-size:var(--t-2xs)">Cargo.toml</span>
+              <span class="cnt">24</span>
+            </div>
+            <div class="facet-row">
+              <div class="cb"></div>
+              <span style="font-family:var(--mono);font-size:var(--t-2xs)">target/debug/</span>
+              <span class="cnt">12</span>
+            </div>
+          </div>
+
+          <div class="facet-group">
+            <div class="facet-hdr">Time <svg class="i sm"><use href="#ic-down"/></svg></div>
+            <div class="facet-row">
+              <div class="cb"></div>
+              <span>Last hour</span>
+              <span class="cnt">12,840</span>
+            </div>
+            <div class="facet-row">
+              <div class="cb"></div>
+              <span>Today</span>
+              <span class="cnt">18,204</span>
+            </div>
+            <div class="facet-row">
+              <div class="cb"></div>
+              <span>This week</span>
+              <span class="cnt">41,992</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- RESULTS PANE -->
+        <div class="results-pane">
+
+          <!-- search + histogram -->
+          <div class="search-bar">
+            <div class="search-field">
+              <svg class="i sm"><use href="#ic-search"/></svg>
+              <input type="text" value="verification:FAILED" placeholder="Search 12,840 signed events…" readonly>
+              <span class="kbd">↵</span>
+            </div>
+
+            <div class="histo-wrap">
+              <div class="histo">
+                <!-- 40 bars across the day; bars scaled to tell story -->
+                <div class="bar" style="height:18%"></div>
+                <div class="bar" style="height:12%"></div>
+                <div class="bar" style="height:8%"></div>
+                <div class="bar" style="height:10%"></div>
+                <div class="bar" style="height:6%"></div>
+                <div class="bar" style="height:9%"></div>
+                <div class="bar" style="height:14%"></div>
+                <div class="bar" style="height:10%"></div>
+                <div class="bar" style="height:8%"></div>
+                <div class="bar" style="height:11%"></div>
+                <div class="bar" style="height:20%"></div>
+                <div class="bar" style="height:16%"></div>
+                <div class="bar" style="height:22%"></div>
+                <div class="bar" style="height:18%"></div>
+                <div class="bar" style="height:24%"></div>
+                <div class="bar warm" style="height:42%"></div>
+                <div class="bar" style="height:28%"></div>
+                <div class="bar" style="height:30%"></div>
+                <div class="bar" style="height:34%"></div>
+                <div class="bar" style="height:26%"></div>
+                <div class="bar" style="height:32%"></div>
+                <div class="bar warm" style="height:48%"></div>
+                <div class="bar" style="height:36%"></div>
+                <div class="bar" style="height:40%"></div>
+                <div class="bar" style="height:44%"></div>
+                <div class="bar" style="height:38%"></div>
+                <div class="bar hot" style="height:100%"></div>
+                <div class="bar hot" style="height:92%"></div>
+                <div class="bar hot" style="height:86%"></div>
+                <div class="bar hot" style="height:78%"></div>
+                <div class="bar" style="height:28%"></div>
+                <div class="bar" style="height:20%"></div>
+                <div class="bar" style="height:16%"></div>
+                <div class="bar" style="height:14%"></div>
+                <div class="bar" style="height:12%"></div>
+                <div class="bar" style="height:10%"></div>
+                <div class="bar" style="height:8%"></div>
+                <div class="bar" style="height:6%"></div>
+                <div class="bar" style="height:5%"></div>
+                <div class="bar" style="height:4%"></div>
+              </div>
+              <div class="histo-labels">
+                <span>00:00</span>
+                <span>06:00</span>
+                <span>12:00</span>
+                <span style="color:var(--danger);font-weight:600">13:58 ▲ runaway loop</span>
+                <span>18:00</span>
+                <span>24:00</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- results scroll area -->
+          <div class="scroll tight" style="padding-top:var(--s3)">
+
+            <!-- run-level integrity banner (broken) -->
+            <div class="integrity-banner broken" style="margin-bottom:var(--s3)">
+              <div class="seal"><svg class="i"><use href="#ic-x"/></svg></div>
+              <div class="stack" style="gap:2px">
+                <div><b>Integrity FAILED</b> — hash-chain break detected between seq 8,418 and 8,419</div>
+                <div class="meta">Events before seq 8,418 verified · 2 events flagged · possible insertion or deletion between recorded entries</div>
+              </div>
+              <div class="spacer"></div>
+              <button class="btn sm" style="border-color:color-mix(in oklch,var(--danger) 40%,transparent);color:var(--danger)">
+                <svg class="i sm"><use href="#ic-eye"/></svg> Re-verify
+              </button>
+            </div>
+
+            <!-- result count -->
+            <div class="flex gap2" style="margin-bottom:var(--s2);color:var(--text-3);font-size:var(--t-sm)">
+              <svg class="i sm"><use href="#ic-filter"/></svg>
+              <span>Showing 2 events matching <code>verification:FAILED</code> · 12,838 filtered out</span>
+              <div class="spacer"></div>
+              <span style="font-family:var(--mono);font-size:var(--t-xs)">sorted: sequence asc</span>
+            </div>
+
+            <!-- event table -->
+            <div class="card" style="overflow:hidden;padding:0">
+              <table class="evt-table">
+                <thead>
+                  <tr>
+                    <th style="padding-left:var(--s3)">Actor</th>
+                    <th>Timestamp</th>
+                    <th>Action</th>
+                    <th>Target</th>
+                    <th>Seq</th>
+                    <th>Event ID</th>
+                    <th style="padding-right:var(--s3)">Integrity</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <!-- normal row before the break -->
+                  <tr>
+                    <td class="actor-cell" style="padding-left:var(--s3)">agent</td>
+                    <td class="ts-cell">13:58:41.003Z</td>
+                    <td class="action-cell">ran</td>
+                    <td class="target-cell">cargo test -p ainix-api</td>
+                    <td style="font-family:var(--mono);font-size:var(--t-xs);color:var(--text-4)">8,416</td>
+                    <td class="id-cell">evt_8416…9a</td>
+                    <td class="badge-cell" style="padding-right:var(--s3)">
+                      <span class="badge-int"><svg class="i sm"><use href="#ic-check"/></svg> verified</span>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="actor-cell" style="padding-left:var(--s3)">agent</td>
+                    <td class="ts-cell">13:58:41.890Z</td>
+                    <td class="action-cell">read</td>
+                    <td class="target-cell">src/tls.rs</td>
+                    <td style="font-family:var(--mono);font-size:var(--t-xs);color:var(--text-4)">8,417</td>
+                    <td class="id-cell">evt_8417…3f</td>
+                    <td class="badge-cell" style="padding-right:var(--s3)">
+                      <span class="badge-int"><svg class="i sm"><use href="#ic-check"/></svg> verified</span>
+                    </td>
+                  </tr>
+                  <!-- flagged row: last good before break -->
+                  <tr class="flagged">
+                    <td class="actor-cell" style="padding-left:var(--s3)">agent</td>
+                    <td class="ts-cell">13:58:43.107Z</td>
+                    <td class="action-cell">applied</td>
+                    <td class="target-cell">src/tls.rs</td>
+                    <td style="font-family:var(--mono);font-size:var(--t-xs)">8,418</td>
+                    <td class="id-cell">evt_8418…b2</td>
+                    <td class="badge-cell" style="padding-right:var(--s3)">
+                      <span class="badge-int broken"><svg class="i sm"><use href="#ic-warn"/></svg> last good</span>
+                    </td>
+                  </tr>
+
+                  <!-- GAP MARKER ROW -->
+                  <tr class="gap-row">
+                    <td colspan="7">
+                      <div class="gap-marker" style="margin: 4px var(--s3)">
+                        <div class="ln"></div>
+                        <span style="white-space:nowrap">chain broken here — seq 8,419's prevHash ≠ hash(evt_8418…b2)</span>
+                        <div class="ln"></div>
+                      </div>
+                    </td>
+                  </tr>
+
+                  <!-- flagged row: first bad after break -->
+                  <tr class="flagged">
+                    <td class="actor-cell" style="padding-left:var(--s3)">agent</td>
+                    <td class="ts-cell">13:58:44.512Z</td>
+                    <td class="action-cell">ran</td>
+                    <td class="target-cell">cargo build --release</td>
+                    <td style="font-family:var(--mono);font-size:var(--t-xs)">8,419</td>
+                    <td class="id-cell">evt_8419…c1</td>
+                    <td class="badge-cell" style="padding-right:var(--s3)">
+                      <span class="badge-int broken"><svg class="i sm"><use href="#ic-x"/></svg> FAILED</span>
+                    </td>
+                  </tr>
+
+                  <!-- normal rows after break -->
+                  <tr>
+                    <td class="actor-cell" style="padding-left:var(--s3)">agent</td>
+                    <td class="ts-cell">13:58:56.201Z</td>
+                    <td class="action-cell">proposed</td>
+                    <td class="target-cell">Cargo.lock</td>
+                    <td style="font-family:var(--mono);font-size:var(--t-xs);color:var(--text-4)">8,420</td>
+                    <td class="id-cell">evt_8420…e7</td>
+                    <td class="badge-cell" style="padding-right:var(--s3)">
+                      <span class="badge-int"><svg class="i sm"><use href="#ic-check"/></svg> verified</span>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="actor-cell" style="padding-left:var(--s3);color:var(--verified)">you</td>
+                    <td class="ts-cell">13:59:40.008Z</td>
+                    <td class="action-cell">approved</td>
+                    <td class="target-cell">proposal #2</td>
+                    <td style="font-family:var(--mono);font-size:var(--t-xs);color:var(--text-4)">8,421</td>
+                    <td class="id-cell">evt_8421…f4</td>
+                    <td class="badge-cell" style="padding-right:var(--s3)">
+                      <span class="badge-int"><svg class="i sm"><use href="#ic-lock"/></svg> signed</span>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="actor-cell" style="padding-left:var(--s3)">agent</td>
+                    <td class="ts-cell">13:59:40.311Z</td>
+                    <td class="action-cell">applied</td>
+                    <td class="target-cell">src/tls.rs (+3 −1)</td>
+                    <td style="font-family:var(--mono);font-size:var(--t-xs);color:var(--text-4)">8,431</td>
+                    <td class="id-cell">evt_8431…d7</td>
+                    <td class="badge-cell" style="padding-right:var(--s3)">
+                      <span class="badge-int"><svg class="i sm"><use href="#ic-check"/></svg> verified</span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- explanatory note -->
+            <div class="flex gap2" style="margin-top:var(--s3);padding:var(--s2) var(--s3);background:var(--danger-bg);border-radius:var(--r-sm);border:1px solid color-mix(in oklch,var(--danger) 25%,transparent)">
+              <svg class="i" style="color:var(--danger);flex:none;margin-top:1px"><use href="#ic-warn"/></svg>
+              <div style="font-size:var(--t-sm);color:var(--text-2)">
+                <b style="color:var(--danger)">What this means:</b> the prevHash field in seq 8,419 does not match the recorded hash of seq 8,418. This indicates that at least one event was inserted, deleted, or modified between these two entries. The chain before seq 8,418 is intact and verifiable. Events after seq 8,419 re-chain correctly from 8,419's (suspect) hash onward.
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</body></html>

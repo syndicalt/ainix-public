@@ -1,0 +1,438 @@
+<!doctype html><html lang="en" data-theme="dark"><head>
+<meta charset="utf-8"><title>Ainix — Approval Inbox</title>
+<link rel="stylesheet" href="tokens.css"><link rel="stylesheet" href="app.css">
+<style>
+body {
+  padding: 20px;
+  display: grid;
+  place-items: center;
+  background: radial-gradient(120% 120% at 30% 0%, oklch(0.26 0.03 264) 0%, oklch(0.18 0.012 264) 55%);
+}
+
+/* Queue row layout */
+.queue-row {
+  display: grid;
+  grid-template-columns: 52px 1fr auto;
+  align-items: center;
+  gap: var(--s3);
+  padding: var(--s2) var(--s3);
+  border-radius: var(--r-md);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease);
+}
+.queue-row:hover { background: var(--surface-1); }
+.queue-row.sel {
+  background: var(--accent-quiet);
+  border-color: var(--accent-line);
+}
+
+.queue-row .row-risk { display: flex; justify-content: center; }
+
+.queue-row .row-main { min-width: 0; }
+.queue-row .row-title {
+  font-size: var(--t-base);
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.queue-row .row-target {
+  font-family: var(--mono);
+  font-size: var(--t-xs);
+  color: var(--text-3);
+  margin-top: 2px;
+}
+.queue-row .row-summary {
+  font-size: var(--t-sm);
+  color: var(--text-3);
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.queue-row .row-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  white-space: nowrap;
+  flex: none;
+}
+.queue-row .row-agent { font-size: var(--t-xs); color: var(--text-3); }
+.queue-row .row-age { font-size: var(--t-xs); color: var(--text-4); font-family: var(--mono); }
+
+/* bucket group header */
+.bucket-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--s2) var(--s1);
+  margin-top: var(--s3);
+  margin-bottom: var(--s1);
+}
+.bucket-header:first-child { margin-top: 0; }
+.bucket-label {
+  font-size: var(--t-2xs);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--text-4);
+  font-weight: 600;
+}
+.bucket-count {
+  font-size: var(--t-xs);
+  color: var(--text-4);
+  font-family: var(--mono);
+}
+
+/* bulk approve bar */
+.bulk-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  padding: var(--s2) var(--s3);
+  border-radius: var(--r-md);
+  background: var(--surface-2);
+  border: 1px solid var(--hairline);
+  margin-bottom: var(--s2);
+}
+.bulk-bar .bulk-desc { font-size: var(--t-sm); color: var(--text-2); flex: 1; }
+.bulk-bar .bulk-desc span { color: var(--text); font-weight: 600; }
+
+/* Inspector: decision card */
+.insp-action-card {
+  background: var(--bg);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-sm);
+  padding: var(--s2) var(--s3);
+}
+.insp-action-title {
+  font-size: var(--t-base);
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 2px;
+}
+.insp-action-target {
+  font-family: var(--mono);
+  font-size: var(--t-xs);
+  color: var(--text-2);
+}
+
+/* tighten ibody gaps */
+.inspector .ibody { gap: var(--s2); }
+
+/* mini diff inside inspector */
+.diff-mini { font-family: var(--mono); font-size: var(--t-xs); border-radius: var(--r-sm);
+  overflow: hidden; border: 1px solid var(--hairline); }
+.diff-mini .fname { background: var(--surface-1); padding: 6px var(--s2); color: var(--text-3);
+  border-bottom: 1px solid var(--hairline); display: flex; align-items: center; gap: var(--s2); }
+.diff-mini .row { display: grid; grid-template-columns: 28px 1fr; }
+.diff-mini .row .ln { text-align: right; padding: 1px 6px; color: var(--text-4); user-select: none; font-size: 10px; }
+.diff-mini .row .tx { padding: 1px 8px; white-space: pre-wrap; }
+.diff-mini .row.add { background: oklch(0.78 0.15 158 / 0.12); }
+.diff-mini .row.add .tx { color: oklch(0.86 0.13 158); }
+.diff-mini .row.del { background: oklch(0.68 0.20 24 / 0.11); }
+.diff-mini .row.del .tx { color: oklch(0.80 0.14 24); }
+
+/* precedent note */
+.precedent {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  padding: var(--s2) var(--s3);
+  border-radius: var(--r-sm);
+  background: var(--accent-quiet);
+  font-size: var(--t-sm);
+  color: var(--text-2);
+}
+.precedent svg { color: var(--accent); flex: none; }
+
+/* verdict row */
+.verdict-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: var(--s2);
+}
+</style>
+</head><body>
+<script src="sprite.js"></script>
+
+<div class="window">
+  <!-- titlebar -->
+  <div class="titlebar">
+    <div class="traffic"><i class="r"></i><i class="y"></i><i class="g"></i></div>
+    <div class="brand"><span class="glyph"><svg class="i sm" style="stroke:var(--on-accent)"><use href="#ic-shield"/></svg></span> Ainix</div>
+    <div class="spacer"></div>
+    <div class="cmd"><svg class="i sm"><use href="#ic-cmd"/></svg> Ask, or run a verified action…<span class="kbd">⌘K</span></div>
+    <div class="spacer"></div>
+    <svg class="i" style="color:var(--text-3)"><use href="#ic-search"/></svg>
+    <div class="chip neutral" style="height:26px"><svg class="i sm"><use href="#ic-user"/></svg> you</div>
+  </div>
+
+  <div class="body with-inspector">
+    <!-- nav rail -->
+    <nav class="rail">
+      <div class="nav"><svg class="i"><use href="#ic-runs"/></svg> Runs</div>
+      <div class="nav active"><svg class="i"><use href="#ic-approve"/></svg> Approvals <span class="count warn">5</span></div>
+      <div class="nav"><svg class="i"><use href="#ic-prov"/></svg> Provenance</div>
+      <div class="nav"><svg class="i"><use href="#ic-policy"/></svg> Policies</div>
+      <div class="nav"><svg class="i"><use href="#ic-artifact"/></svg> Artifacts</div>
+      <div class="nav"><svg class="i"><use href="#ic-session"/></svg> Sessions</div>
+      <div class="grp">Recent runs</div>
+      <div class="nav" style="font-weight:500"><svg class="i" style="color:var(--verified)"><use href="#ic-check"/></svg> #4126 index reindex</div>
+      <div class="nav" style="font-weight:500;color:var(--text)"><svg class="i" style="color:var(--accent)"><use href="#ic-dot"/></svg> #4127 RUSTSEC patch</div>
+      <div class="nav" style="font-weight:500"><svg class="i" style="color:var(--verified)"><use href="#ic-check"/></svg> #4125 fmt sweep</div>
+      <div class="spacer"></div>
+      <div class="nav"><svg class="i"><use href="#ic-undo"/></svg> Time-travel</div>
+    </nav>
+
+    <!-- content: queue -->
+    <div class="content">
+      <div class="toolbar">
+        <div class="stack" style="gap:2px">
+          <h2>Approvals</h2>
+          <div class="sub">5 pending · sorted by risk × impact</div>
+        </div>
+        <div class="spacer"></div>
+        <div class="seg">
+          <button class="on">Risk × impact</button>
+          <button>Newest</button>
+          <button>Oldest</button>
+        </div>
+        <div class="field" style="width:196px">
+          <svg class="i sm"><use href="#ic-search"/></svg>
+          <span>Filter proposals…</span>
+        </div>
+      </div>
+
+      <div class="scroll tight">
+
+        <!-- BUCKET 1: Needs review -->
+        <div class="bucket-header">
+          <span class="bucket-label"><svg class="i sm" style="color:var(--review);vertical-align:middle;margin-right:4px"><use href="#ic-warn"/></svg>Needs review</span>
+          <span class="bucket-count">3 items</span>
+        </div>
+
+        <!-- Row 1 HIGH – selected -->
+        <div class="queue-row sel">
+          <div class="row-risk"><span class="risk high">HIGH</span></div>
+          <div class="row-main">
+            <div class="row-title">Patch src/tls.rs — adapt SslVerifyMode API call site</div>
+            <div class="row-target">crates/ainix-api/src/tls.rs · run #4127</div>
+            <div class="row-summary">Rename SslVerifyMode::NONE → SslVerifyMode::PEER after openssl 0.10.72 breaking rename</div>
+          </div>
+          <div class="row-meta">
+            <div class="row-agent"><svg class="i sm" style="color:var(--accent)"><use href="#ic-bolt"/></svg> rustsec-agent</div>
+            <div class="row-age">4m ago</div>
+            <span class="chip review"><span class="dot"></span>awaiting you</span>
+          </div>
+        </div>
+
+        <!-- Row 2 MED -->
+        <div class="queue-row">
+          <div class="row-risk"><span class="risk med">MED</span></div>
+          <div class="row-main">
+            <div class="row-title">Remove target/debug/incremental cache</div>
+            <div class="row-target">target/debug/incremental · run #4127</div>
+            <div class="row-summary">Irreversible delete of build cache — not git-backed; frees ~1.4 GB</div>
+          </div>
+          <div class="row-meta">
+            <div class="row-agent"><svg class="i sm" style="color:var(--accent)"><use href="#ic-bolt"/></svg> rustsec-agent</div>
+            <div class="row-age">2m ago</div>
+            <span class="chip review"><span class="dot"></span>awaiting you</span>
+          </div>
+        </div>
+
+        <!-- Row 3 LOW -->
+        <div class="queue-row">
+          <div class="row-risk"><span class="risk low">LOW</span></div>
+          <div class="row-main">
+            <div class="row-title">Bump openssl 0.10.64 → 0.10.72 in Cargo.toml</div>
+            <div class="row-target">crates/ainix-api/Cargo.toml · run #4127</div>
+            <div class="row-summary">Version bump to clear RUSTSEC-2026-0041; reversible via git revert</div>
+          </div>
+          <div class="row-meta">
+            <div class="row-agent"><svg class="i sm" style="color:var(--accent)"><use href="#ic-bolt"/></svg> rustsec-agent</div>
+            <div class="row-age">6m ago</div>
+            <span class="chip review"><span class="dot"></span>awaiting you</span>
+          </div>
+        </div>
+
+        <!-- BUCKET 2: Waiting on checks -->
+        <div class="bucket-header">
+          <span class="bucket-label"><svg class="i sm" style="color:var(--text-4);vertical-align:middle;margin-right:4px"><use href="#ic-clock"/></svg>Waiting on checks</span>
+          <span class="bucket-count">2 items</span>
+        </div>
+
+        <!-- Bulk approve bar for low-risk identical items -->
+        <div class="bulk-bar">
+          <svg class="i" style="color:var(--verified)"><use href="#ic-check"/></svg>
+          <span class="bulk-desc"><span>3 similar low-risk dependency bumps</span> — same pattern, same agent, all reversible via git revert</span>
+          <button class="btn sm primary"><svg class="i sm"><use href="#ic-approve"/></svg> Bulk-approve 3 low-risk</button>
+        </div>
+
+        <!-- Row 5 LOW waiting -->
+        <div class="queue-row">
+          <div class="row-risk"><span class="risk low">LOW</span></div>
+          <div class="row-main">
+            <div class="row-title">Bump openssl-sys 0.9.93 → 0.9.99</div>
+            <div class="row-target">crates/ainix-net/Cargo.toml · run #4128</div>
+            <div class="row-summary">Transitive dep update to match openssl 0.10.72; dry-run in progress</div>
+          </div>
+          <div class="row-meta">
+            <div class="row-agent"><svg class="i sm" style="color:var(--accent)"><use href="#ic-bolt"/></svg> dep-sync-agent</div>
+            <div class="row-age">1m ago</div>
+            <span class="chip neutral"><svg class="i sm"><use href="#ic-clock"/></svg> dry-run…</span>
+          </div>
+        </div>
+
+        <!-- Row 6 LOW waiting -->
+        <div class="queue-row">
+          <div class="row-risk"><span class="risk low">LOW</span></div>
+          <div class="row-main">
+            <div class="row-title">Bump openssl-sys 0.9.93 → 0.9.99</div>
+            <div class="row-target">crates/ainix-tls/Cargo.toml · run #4128</div>
+            <div class="row-summary">Same bump in sibling crate; policy check running</div>
+          </div>
+          <div class="row-meta">
+            <div class="row-agent"><svg class="i sm" style="color:var(--accent)"><use href="#ic-bolt"/></svg> dep-sync-agent</div>
+            <div class="row-age">1m ago</div>
+            <span class="chip neutral"><svg class="i sm"><use href="#ic-clock"/></svg> policy…</span>
+          </div>
+        </div>
+
+        <!-- BUCKET 3: Recently approved -->
+        <div class="bucket-header">
+          <span class="bucket-label"><svg class="i sm" style="color:var(--verified);vertical-align:middle;margin-right:4px"><use href="#ic-check"/></svg>Recently approved</span>
+          <span class="bucket-count">2 items · 14:01 – 14:02</span>
+        </div>
+
+        <!-- Row 7 MED approved -->
+        <div class="queue-row" style="opacity:0.65">
+          <div class="row-risk"><span class="risk med">MED</span></div>
+          <div class="row-main">
+            <div class="row-title">cargo update -p openssl</div>
+            <div class="row-target">workspace · run #4127</div>
+            <div class="row-summary">Lockfile update to pin resolved 0.10.72; applied 14:01:50</div>
+          </div>
+          <div class="row-meta">
+            <div class="row-agent"><svg class="i sm" style="color:var(--accent)"><use href="#ic-bolt"/></svg> rustsec-agent</div>
+            <div class="row-age">8m ago</div>
+            <span class="chip verified"><span class="dot"></span>approved · applied</span>
+          </div>
+        </div>
+
+        <!-- Row 8 LOW approved -->
+        <div class="queue-row" style="opacity:0.65">
+          <div class="row-risk"><span class="risk low">LOW</span></div>
+          <div class="row-main">
+            <div class="row-title">Read crates/ainix-api/Cargo.toml</div>
+            <div class="row-target">crates/ainix-api/Cargo.toml · run #4127</div>
+            <div class="row-summary">File read to inspect current dependency manifest; auto-allowed by policy</div>
+          </div>
+          <div class="row-meta">
+            <div class="row-agent"><svg class="i sm" style="color:var(--accent)"><use href="#ic-bolt"/></svg> rustsec-agent</div>
+            <div class="row-age">11m ago</div>
+            <span class="chip verified"><span class="dot"></span>auto-allowed</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- INSPECTOR: selected proposal decision card -->
+    <aside class="inspector">
+      <div class="ihead" style="padding:var(--s2) var(--s3)">
+        <div class="row-between" style="margin-bottom:2px">
+          <div class="section-label">Proposal #2 · run #4127</div>
+          <span class="risk high">HIGH</span>
+        </div>
+        <div style="font-size:var(--t-base);font-weight:600;line-height:var(--lh-tight)">Patch src/tls.rs — adapt SslVerifyMode API</div>
+      </div>
+      <div class="tabs">
+        <div class="tab on">Decision</div>
+        <div class="tab">Record</div>
+        <div class="tab">History</div>
+      </div>
+      <div class="ibody">
+
+        <!-- action card -->
+        <div class="insp-action-card">
+          <div class="insp-action-title">Edit crates/ainix-api/src/tls.rs</div>
+          <div class="insp-action-target">+3 lines · −1 line · reversible via git revert</div>
+        </div>
+
+        <!-- mini diff preview -->
+        <div class="stack gap1">
+          <div class="section-label">Diff preview</div>
+          <div class="diff-mini">
+            <div class="fname">
+              <svg class="i sm"><use href="#ic-file"/></svg>
+              crates/ainix-api/src/tls.rs
+            </div>
+            <div class="row del"><div class="ln">47</div><div class="tx">-    ssl.set_verify(SslVerifyMode::NONE);</div></div>
+            <div class="row add"><div class="ln">47</div><div class="tx">+    ssl.set_verify(SslVerifyMode::PEER);</div></div>
+            <div class="row add"><div class="ln">48</div><div class="tx">+    ssl.set_verify_depth(4);</div></div>
+          </div>
+        </div>
+
+        <!-- evidence -->
+        <div class="stack gap1">
+          <div class="section-label">Cited evidence</div>
+          <div class="evidence" style="padding:var(--s1) var(--s2)">
+            <div class="src">
+              <svg class="i sm"><use href="#ic-link"/></svg>
+              openssl 0.10.72 CHANGELOG · verbatim
+            </div>
+            <q>"SslVerifyMode::NONE has been renamed to SslVerifyMode::PEER; the old name is removed and will cause a compile error."</q>
+          </div>
+        </div>
+
+        <!-- reasoning -->
+        <div class="stack gap1">
+          <div class="section-label">Agent reasoning</div>
+          <div style="font-size:var(--t-sm);color:var(--text-2);line-height:1.35">
+            openssl 0.10.72 renamed <code>SslVerifyMode::NONE</code> → <code>PEER</code> at tls.rs:47.
+            Required to compile after the Cargo.toml bump; semantic behaviour unchanged.
+          </div>
+        </div>
+
+        <!-- precedent -->
+        <div class="precedent" style="padding:var(--s1) var(--s2)">
+          <svg class="i sm"><use href="#ic-clock"/></svg>
+          <span style="font-size:var(--t-xs)">You approved <strong style="color:var(--text)">3 similar dependency bumps</strong> this month — all on crates/ainix-api, all reversed cleanly in CI.</span>
+        </div>
+
+        <!-- preconditions + verdict combined -->
+        <div style="background:var(--surface-2);border:1px solid var(--hairline);border-radius:var(--r-md);padding:var(--s2) var(--s3);display:flex;flex-direction:column;gap:var(--s2)">
+          <div class="checklist">
+            <div class="check ok"><span class="mk"><svg class="i sm"><use href="#ic-check"/></svg></span><span>Dry-run passed — cargo check exits 0</span></div>
+            <div class="check ok"><span class="mk"><svg class="i sm"><use href="#ic-check"/></svg></span><span>Policy passed — within fs:write scope</span></div>
+            <div class="check ok"><span class="mk"><svg class="i sm"><use href="#ic-check"/></svg></span><span>Cost within budget — 0 API calls</span></div>
+            <div class="check ok"><span class="mk"><svg class="i sm"><use href="#ic-check"/></svg></span><span>No conflicting in-flight change on tls.rs</span></div>
+          </div>
+          <hr class="div">
+          <div class="section-label">Your decision</div>
+          <div class="verdict-row">
+            <button class="btn primary sm" style="justify-content:center">
+              <svg class="i sm"><use href="#ic-check"/></svg> Approve
+            </button>
+            <button class="btn sm" style="justify-content:center">
+              <svg class="i sm"><use href="#ic-flag"/></svg> Request changes
+            </button>
+            <button class="btn ghost sm" style="justify-content:center">
+              <svg class="i sm"><use href="#ic-eye"/></svg> Comment
+            </button>
+          </div>
+          <div style="font-size:var(--t-xs);color:var(--text-4);line-height:1.35">
+            Approving records your sig as human approver · agent rustsec-agent as proposer
+          </div>
+        </div>
+
+      </div>
+    </aside>
+  </div>
+</div>
+</body></html>

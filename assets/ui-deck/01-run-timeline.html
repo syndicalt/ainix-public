@@ -1,0 +1,185 @@
+<!doctype html><html lang="en" data-theme="dark"><head>
+<meta charset="utf-8"><title>Ainix — Run Timeline</title>
+<link rel="stylesheet" href="tokens.css"><link rel="stylesheet" href="app.css">
+<style>body{padding:20px;display:grid;place-items:center;background:
+  radial-gradient(120% 120% at 30% 0%, oklch(0.26 0.03 264) 0%, oklch(0.18 0.012 264) 55%);}</style>
+</head><body>
+<script src="sprite.js"></script>
+
+<div class="window">
+  <!-- titlebar -->
+  <div class="titlebar">
+    <div class="traffic"><i class="r"></i><i class="y"></i><i class="g"></i></div>
+    <div class="brand"><span class="glyph"><svg class="i sm" style="stroke:var(--on-accent)"><use href="#ic-shield"/></svg></span> Ainix</div>
+    <div class="spacer"></div>
+    <div class="cmd"><svg class="i sm"><use href="#ic-cmd"/></svg> Ask, or run a verified action…<span class="kbd">⌘K</span></div>
+    <div class="spacer"></div>
+    <svg class="i" style="color:var(--text-3)"><use href="#ic-search"/></svg>
+    <div class="chip neutral" style="height:26px"><svg class="i sm"><use href="#ic-user"/></svg> you</div>
+  </div>
+
+  <div class="body with-inspector">
+    <!-- nav rail -->
+    <nav class="rail">
+      <div class="nav active"><svg class="i"><use href="#ic-runs"/></svg> Runs</div>
+      <div class="nav"><svg class="i"><use href="#ic-approve"/></svg> Approvals <span class="count warn">2</span></div>
+      <div class="nav"><svg class="i"><use href="#ic-prov"/></svg> Provenance</div>
+      <div class="nav"><svg class="i"><use href="#ic-policy"/></svg> Policies</div>
+      <div class="nav"><svg class="i"><use href="#ic-artifact"/></svg> Artifacts</div>
+      <div class="nav"><svg class="i"><use href="#ic-session"/></svg> Sessions</div>
+      <div class="grp">Recent runs</div>
+      <div class="nav" style="font-weight:500"><svg class="i" style="color:var(--verified)"><use href="#ic-check"/></svg> #4126 index reindex</div>
+      <div class="nav" style="font-weight:500;color:var(--text)"><svg class="i" style="color:var(--accent)"><use href="#ic-dot"/></svg> #4127 RUSTSEC patch</div>
+      <div class="nav" style="font-weight:500"><svg class="i" style="color:var(--verified)"><use href="#ic-check"/></svg> #4125 fmt sweep</div>
+      <div class="spacer"></div>
+      <div class="nav"><svg class="i"><use href="#ic-undo"/></svg> Time-travel</div>
+    </nav>
+
+    <!-- content -->
+    <div class="content">
+      <div class="toolbar">
+        <div class="stack" style="gap:2px">
+          <h2>Run #4127 · Resolve RUSTSEC-2026-0041</h2>
+          <div class="sub flex gap2"><span>ainix-api</span><span>·</span><span class="flex gap1"><svg class="i sm"><use href="#ic-bolt"/></svg> interactive</span><span>·</span><span>started 13:58:02</span></div>
+        </div>
+        <div class="spacer"></div>
+        <div class="seg"><button class="on">Timeline</button><button>Graph</button><button>Diffs</button></div>
+        <button class="btn ghost"><svg class="i sm"><use href="#ic-undo"/></svg> Rewind</button>
+      </div>
+
+      <div class="scroll">
+        <!-- run-level integrity banner -->
+        <div class="integrity-banner" style="margin-bottom:var(--s4)">
+          <div class="seal"><svg class="i"><use href="#ic-prov"/></svg></div>
+          <div class="stack" style="gap:1px">
+            <div><b>Integrity verified</b> — 38 events, hash-chain unbroken</div>
+            <div class="meta">Signed by <span class="mono">dev@ainix · key 9F2C…A1</span> · digest matches external anchor · last verified 14:02:11Z</div>
+          </div>
+          <div class="spacer"></div>
+          <button class="btn sm"><svg class="i sm"><use href="#ic-eye"/></svg> Re-verify</button>
+        </div>
+
+        <!-- timeline waterfall (indentation = causality) -->
+        <div class="timeline">
+          <div class="evt">
+            <div class="ts">13:58:02.114</div>
+            <div class="gut"><div class="node verified"></div></div>
+            <div class="main"><div class="line1"><span class="actor human">you</span><span class="act">requested</span></div>
+              <div class="detail">"Resolve advisory RUSTSEC-2026-0041 in ainix-api"</div></div>
+            <div class="right"><span class="badge-int"><svg class="i sm"><use href="#ic-lock"/></svg> signed</span></div>
+          </div>
+
+          <div class="evt">
+            <div class="ts">13:58:03.901</div>
+            <div class="gut"><div class="node accent"></div></div>
+            <div class="main"><div class="line1"><span class="actor agent">agent</span><span class="act">planned</span><span class="chip neutral">4 steps</span></div>
+              <div class="detail">read manifest → bump dependency → patch call site → verify build &amp; tests</div></div>
+            <div class="right"><span class="chip accent"><svg class="i sm"><use href="#ic-check"/></svg> plan approved</span></div>
+          </div>
+
+          <div class="evt depth1">
+            <div class="ts">13:58:05.220</div>
+            <div class="gut"><div class="node"></div></div>
+            <div class="main"><div class="line1"><span class="actor agent">agent</span><span class="act">read</span><span class="target">crates/ainix-api/Cargo.toml</span></div></div>
+            <div class="right"><span class="badge-int"><svg class="i sm"><use href="#ic-check"/></svg></span></div>
+          </div>
+          <div class="evt depth1">
+            <div class="ts">13:58:06.778</div>
+            <div class="gut"><div class="node"></div></div>
+            <div class="main"><div class="line1"><span class="actor agent">agent</span><span class="act">read</span><span class="target">crates/ainix-api/src/tls.rs</span></div></div>
+            <div class="right"><span class="badge-int"><svg class="i sm"><use href="#ic-check"/></svg></span></div>
+          </div>
+
+          <div class="evt depth1">
+            <div class="ts">13:58:11.402</div>
+            <div class="gut"><div class="node review"></div></div>
+            <div class="main"><div class="line1"><span class="actor agent">agent</span><span class="act">proposed</span><span class="target">Cargo.toml</span><span class="chip review"><span class="dot"></span>edit · reviewed</span></div>
+              <div class="detail">bump <code>openssl 0.10.64 → 0.10.72</code> · cited advisory RUSTSEC-2026-0041</div></div>
+          </div>
+          <div class="evt depth2">
+            <div class="ts">13:58:24.067</div>
+            <div class="gut"><div class="node verified"></div></div>
+            <div class="main"><div class="line1"><span class="actor human">you</span><span class="act">approved</span><span class="chip neutral">proposal #1</span></div></div>
+            <div class="right"><span class="badge-int"><svg class="i sm"><use href="#ic-lock"/></svg> signed</span></div>
+          </div>
+          <div class="evt depth2">
+            <div class="ts">13:58:24.310</div>
+            <div class="gut"><div class="node verified"></div></div>
+            <div class="main"><div class="line1"><span class="actor agent">agent</span><span class="act">applied</span><span class="target">Cargo.toml</span></div></div>
+            <div class="right"><span class="badge-int"><svg class="i sm"><use href="#ic-check"/></svg> reversible</span></div>
+          </div>
+
+          <div class="evt depth1">
+            <div class="ts">13:58:31.889</div>
+            <div class="gut"><div class="node"></div></div>
+            <div class="main"><div class="line1"><span class="actor agent">agent</span><span class="act">ran</span><span class="target"><svg class="i sm" style="margin-right:4px"><use href="#ic-term"/></svg>cargo update -p openssl</span></div>
+              <div class="detail">Updating openssl v0.10.64 → v0.10.72 · auto-allowed by policy <code>cargo:read-write</code></div></div>
+            <div class="right"><span class="badge-int"><svg class="i sm"><use href="#ic-check"/></svg></span></div>
+          </div>
+
+          <div class="evt depth1">
+            <div class="ts">13:59:02.551</div>
+            <div class="gut"><div class="node verified"></div></div>
+            <div class="main"><div class="line1"><span class="actor agent">agent</span><span class="act">proposed &amp; applied</span><span class="target">src/tls.rs</span><span class="chip verified"><span class="dot"></span>+3 −1</span></div>
+              <div class="detail">adapt to renamed <code>SslVerifyMode</code> API · you approved proposal #2 at 13:59:40</div></div>
+            <div class="right"><span class="badge-int"><svg class="i sm"><use href="#ic-check"/></svg> signed</span></div>
+          </div>
+
+          <div class="evt depth1">
+            <div class="ts">14:00:12.030</div>
+            <div class="gut"><div class="node verified"></div></div>
+            <div class="main"><div class="line1"><span class="actor agent">agent</span><span class="act">ran</span><span class="target"><svg class="i sm" style="margin-right:4px"><use href="#ic-term"/></svg>cargo test -p ainix-api</span><span class="chip verified"><span class="dot"></span>41 passed</span></div></div>
+            <div class="right"><span class="badge-int"><svg class="i sm"><use href="#ic-check"/></svg></span></div>
+          </div>
+
+          <!-- the gated destructive step (currently pending human approval) -->
+          <div class="evt sel">
+            <div class="ts">14:01:50.700</div>
+            <div class="gut"><div class="node review"></div></div>
+            <div class="main"><div class="line1"><span class="actor agent">agent</span><span class="act">requested approval</span><span class="target"><svg class="i sm" style="margin-right:4px"><use href="#ic-term"/></svg>rm -rf target/debug/incremental</span></div>
+              <div class="detail flex gap2" style="margin-top:6px"><span class="risk high">high blast radius</span><span class="chip review"><svg class="i sm"><use href="#ic-warn"/></svg> irreversible · not git-backed · awaiting you</span></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- inspector: the gate decision for the selected event -->
+    <aside class="inspector">
+      <div class="ihead row-between">
+        <div class="stack" style="gap:2px"><div class="section-label">Pending action</div><h3 style="font-size:var(--t-md)">Destructive command</h3></div>
+        <span class="risk high">high</span>
+      </div>
+      <div class="tabs"><div class="tab on">Decision</div><div class="tab">Record</div><div class="tab">Why gated</div></div>
+      <div class="ibody">
+        <div class="card" style="padding:var(--s3);background:var(--bg)">
+          <div class="mono" style="font-size:var(--t-sm);color:var(--text)"><span style="color:var(--danger)">$</span> rm -rf target/debug/incremental</div>
+        </div>
+
+        <div class="stack gap2">
+          <div class="section-label">Why this needs you</div>
+          <div class="check pending"><span class="mk"><svg class="i sm"><use href="#ic-warn"/></svg></span><span>Irreversible — deletes files outside any git snapshot</span></div>
+          <div class="check pending"><span class="mk"><svg class="i sm"><use href="#ic-x"/></svg></span><span>Not covered by an auto-allow policy</span></div>
+          <div class="check ok"><span class="mk"><svg class="i sm"><use href="#ic-check"/></svg></span><span>Scope bounded to <code>target/</code> (verified by capability)</span></div>
+        </div>
+
+        <div class="stack gap2">
+          <div class="section-label">Capability requested</div>
+          <dl class="kv">
+            <dt>token</dt><dd class="mono">cap_fs.delete</dd>
+            <dt>scope</dt><dd class="mono">./target/**</dd>
+            <dt>granted by</dt><dd>session policy · time-bounded 10m</dd>
+          </dl>
+        </div>
+
+        <hr class="div">
+        <div class="stack gap2">
+          <div class="section-label">Decision — type <b style="color:var(--text)">delete</b> to confirm</div>
+          <div class="field" style="font-family:var(--mono)"><span style="color:var(--text-4)">delete</span><span class="spacer"></span><svg class="i sm" style="color:var(--text-4)"><use href="#ic-lock"/></svg></div>
+          <div class="flex gap2"><button class="btn danger" style="flex:1"><svg class="i sm"><use href="#ic-check"/></svg> Approve &amp; apply</button><button class="btn" style="flex:1"><svg class="i sm"><use href="#ic-x"/></svg> Reject</button></div>
+          <button class="btn ghost sm" style="justify-content:center"><svg class="i sm"><use href="#ic-undo"/></svg> Send back with a constraint instead</button>
+        </div>
+      </div>
+    </aside>
+  </div>
+</div>
+</body></html>

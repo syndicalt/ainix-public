@@ -1,0 +1,388 @@
+<!doctype html><html lang="en" data-theme="dark"><head>
+<meta charset="utf-8"><title>Ainix — Policy &amp; Capabilities</title>
+<link rel="stylesheet" href="tokens.css"><link rel="stylesheet" href="app.css">
+<style>
+body {
+  padding: 20px;
+  display: grid;
+  place-items: center;
+  background: radial-gradient(120% 120% at 30% 0%, oklch(0.26 0.03 264) 0%, oklch(0.18 0.012 264) 55%);
+}
+
+/* Screen-specific layout only — tokens vars throughout */
+.policy-scroll { padding: var(--s5) var(--s6); display: flex; flex-direction: column; gap: var(--s5); max-width: 860px; width: 100%; margin: 0 auto; }
+
+.section-head { display: flex; align-items: baseline; gap: var(--s3); margin-bottom: var(--s3); }
+.section-head h3 { font-size: var(--t-md); font-weight: 600; }
+.section-head .sub { font-size: var(--t-sm); color: var(--text-3); }
+
+/* Tool policy table */
+.policy-table { width: 100%; border-collapse: collapse; }
+.policy-table th {
+  text-align: left;
+  font-size: var(--t-2xs);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--text-4);
+  font-weight: 600;
+  padding: var(--s1) var(--s3) var(--s2);
+  border-bottom: 1px solid var(--hairline);
+}
+.policy-table td {
+  padding: var(--s2) var(--s3);
+  vertical-align: middle;
+  border-bottom: 1px solid var(--hairline);
+  font-size: var(--t-sm);
+}
+.policy-table tr:last-child td { border-bottom: 0; }
+.policy-table tr:hover td { background: var(--surface-3); }
+.policy-table .tool-name { font-family: var(--mono); font-size: var(--t-sm); color: var(--text); }
+.policy-table .tool-desc { color: var(--text-3); font-size: var(--t-xs); margin-top: 2px; }
+.policy-table .seg-cell { min-width: 222px; }
+
+/* Reversibility rule cards */
+.rule-card { display: flex; align-items: center; gap: var(--s4); padding: var(--s3) var(--s4); }
+.rule-card + .rule-card { border-top: 1px solid var(--hairline); }
+.rule-card .rule-info { flex: 1; }
+.rule-card .rule-title { font-weight: 500; font-size: var(--t-sm); }
+.rule-card .rule-desc { font-size: var(--t-xs); color: var(--text-3); margin-top: 3px; }
+.rule-card .locked-badge {
+  font-size: var(--t-2xs);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-4);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Blast-radius tier cards */
+.blast-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: var(--s3); }
+.blast-card { padding: var(--s3) var(--s4); }
+.blast-card .tier-label { font-size: var(--t-2xs); font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: var(--s2); }
+.blast-card .tier-label.low  { color: var(--verified); }
+.blast-card .tier-label.med  { color: var(--review); }
+.blast-card .tier-label.high { color: var(--danger); }
+.blast-card .tier-title { font-weight: 600; font-size: var(--t-sm); margin-bottom: var(--s1); }
+.blast-card .tier-body { font-size: var(--t-xs); color: var(--text-3); line-height: 1.55; }
+.blast-card .tier-req { display: flex; align-items: center; gap: var(--s1); margin-top: var(--s2); padding-top: var(--s2); border-top: 1px solid var(--hairline); font-size: var(--t-xs); color: var(--text-2); font-weight: 500; }
+
+/* Capability tokens */
+.cap-list { display: flex; flex-direction: column; }
+.cap-row { display: grid; grid-template-columns: 160px 1fr 1fr auto; gap: var(--s3); align-items: center; padding: var(--s2) var(--s4); font-size: var(--t-sm); border-bottom: 1px solid var(--hairline); }
+.cap-row:last-child { border-bottom: 0; }
+.cap-row:hover { background: var(--surface-3); }
+.cap-token { font-family: var(--mono); font-size: var(--t-xs); color: var(--accent); }
+.cap-scope { font-family: var(--mono); font-size: var(--t-xs); color: var(--text-2); }
+.cap-expires { font-size: var(--t-xs); color: var(--text-3); display: flex; align-items: center; gap: 4px; }
+.cap-head { display: grid; grid-template-columns: 160px 1fr 1fr auto; gap: var(--s3); padding: var(--s1) var(--s4) var(--s2); border-bottom: 1px solid var(--hairline); }
+.cap-head span { font-size: var(--t-2xs); font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-4); }
+
+/* Bookend toggle */
+.bookend-card { display: flex; align-items: flex-start; gap: var(--s4); padding: var(--s4); }
+.bookend-info { flex: 1; }
+.bookend-title { font-weight: 600; font-size: var(--t-md); margin-bottom: var(--s1); }
+.bookend-desc { font-size: var(--t-sm); color: var(--text-3); line-height: 1.55; }
+.bookend-steps { display: flex; align-items: center; gap: var(--s2); margin-top: var(--s3); flex-wrap: wrap; }
+.bookend-step { display: flex; align-items: center; gap: 6px; font-size: var(--t-xs); font-weight: 500; padding: 4px 10px; background: var(--surface-3); border-radius: var(--r-pill); color: var(--text-2); }
+.bookend-step.active { background: var(--accent-quiet); color: var(--accent); }
+.bookend-arrow { color: var(--text-4); font-size: 11px; }
+</style>
+</head><body>
+<script src="sprite.js"></script>
+
+<div class="window">
+  <!-- titlebar -->
+  <div class="titlebar">
+    <div class="traffic"><i class="r"></i><i class="y"></i><i class="g"></i></div>
+    <div class="brand"><span class="glyph"><svg class="i sm" style="stroke:var(--on-accent)"><use href="#ic-shield"/></svg></span> Ainix</div>
+    <div class="spacer"></div>
+    <div class="cmd"><svg class="i sm"><use href="#ic-cmd"/></svg> Ask, or run a verified action…<span class="kbd">⌘K</span></div>
+    <div class="spacer"></div>
+    <svg class="i" style="color:var(--text-3)"><use href="#ic-search"/></svg>
+    <div class="chip neutral" style="height:26px"><svg class="i sm"><use href="#ic-user"/></svg> you</div>
+  </div>
+
+  <div class="body">
+    <!-- nav rail -->
+    <nav class="rail">
+      <div class="nav"><svg class="i"><use href="#ic-runs"/></svg> Runs</div>
+      <div class="nav"><svg class="i"><use href="#ic-approve"/></svg> Approvals <span class="count warn">2</span></div>
+      <div class="nav"><svg class="i"><use href="#ic-prov"/></svg> Provenance</div>
+      <div class="nav active"><svg class="i"><use href="#ic-policy"/></svg> Policies</div>
+      <div class="nav"><svg class="i"><use href="#ic-artifact"/></svg> Artifacts</div>
+      <div class="nav"><svg class="i"><use href="#ic-session"/></svg> Sessions</div>
+      <div class="grp">Recent runs</div>
+      <div class="nav" style="font-weight:500"><svg class="i" style="color:var(--verified)"><use href="#ic-check"/></svg> #4126 index reindex</div>
+      <div class="nav" style="font-weight:500;color:var(--text)"><svg class="i" style="color:var(--accent)"><use href="#ic-dot"/></svg> #4127 RUSTSEC patch</div>
+      <div class="nav" style="font-weight:500"><svg class="i" style="color:var(--verified)"><use href="#ic-check"/></svg> #4125 fmt sweep</div>
+      <div class="spacer"></div>
+      <div class="nav"><svg class="i"><use href="#ic-undo"/></svg> Time-travel</div>
+    </nav>
+
+    <!-- content -->
+    <div class="content">
+      <div class="toolbar">
+        <div class="stack" style="gap:2px">
+          <h2>Policy &amp; Capabilities</h2>
+          <div class="sub">The approval-fatigue antidote — ask once, remember, auto-handle the rest</div>
+        </div>
+        <div class="spacer"></div>
+        <button class="btn ghost sm"><svg class="i sm"><use href="#ic-filter"/></svg> Scope: ainix-api</button>
+        <button class="btn primary sm"><svg class="i sm"><use href="#ic-check"/></svg> Save changes</button>
+      </div>
+
+      <div class="scroll">
+        <div class="policy-scroll">
+
+          <!-- ── Section 1: Ask once — tool policies ── -->
+          <div>
+            <div class="section-head">
+              <h3>Ask once — tool policies</h3>
+              <span class="sub">Per-command-prefix defaults. Auto-allow skips the prompt; Ask gates once per run; Deny blocks outright.</span>
+            </div>
+            <div class="card">
+              <table class="policy-table" style="width:100%">
+                <thead>
+                  <tr>
+                    <th style="width:220px">Command / prefix</th>
+                    <th>Description</th>
+                    <th style="width:80px">Blast</th>
+                    <th class="seg-cell" style="width:230px;text-align:center">Default</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>
+                      <div class="tool-name">cargo test</div>
+                    </td>
+                    <td><div class="tool-desc">Run the test suite — read-only, no side effects outside target/</div></td>
+                    <td><span class="risk low">low</span></td>
+                    <td class="seg-cell" style="text-align:center">
+                      <div class="seg">
+                        <button class="on">Auto-allow</button>
+                        <button>Ask</button>
+                        <button>Deny</button>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <div class="tool-name">cargo build</div>
+                    </td>
+                    <td><div class="tool-desc">Compile crate — writes to target/, reversible via cargo clean</div></td>
+                    <td><span class="risk low">low</span></td>
+                    <td class="seg-cell" style="text-align:center">
+                      <div class="seg">
+                        <button class="on">Auto-allow</button>
+                        <button>Ask</button>
+                        <button>Deny</button>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <div class="tool-name">git status / diff / log</div>
+                    </td>
+                    <td><div class="tool-desc">Read-only git inspection — no state mutation</div></td>
+                    <td><span class="risk low">low</span></td>
+                    <td class="seg-cell" style="text-align:center">
+                      <div class="seg">
+                        <button class="on">Auto-allow</button>
+                        <button>Ask</button>
+                        <button>Deny</button>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <div class="tool-name">git push</div>
+                    </td>
+                    <td><div class="tool-desc">Publishes commits to remote — externally visible, harder to retract</div></td>
+                    <td><span class="risk med">med</span></td>
+                    <td class="seg-cell" style="text-align:center">
+                      <div class="seg">
+                        <button>Auto-allow</button>
+                        <button class="on">Ask</button>
+                        <button>Deny</button>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <div class="tool-name">rm -rf *</div>
+                      <div class="tool-desc" style="color:var(--danger);opacity:0.8">any irreversible fs delete</div>
+                    </td>
+                    <td><div class="tool-desc">Recursive deletion — permanently removes files not recoverable from git</div></td>
+                    <td><span class="risk high">high</span></td>
+                    <td class="seg-cell" style="text-align:center">
+                      <div class="seg">
+                        <button>Auto-allow</button>
+                        <button class="on">Ask</button>
+                        <button>Deny</button>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <div class="tool-name">network:*</div>
+                      <div class="tool-desc">outbound requests</div>
+                    </td>
+                    <td><div class="tool-desc">Any outbound network call — scope &amp; destination gated per-grant</div></td>
+                    <td><span class="risk med">med</span></td>
+                    <td class="seg-cell" style="text-align:center">
+                      <div class="seg">
+                        <button>Auto-allow</button>
+                        <button class="on">Ask</button>
+                        <button>Deny</button>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- ── Section 2: Reversibility-aware gating ── -->
+          <div>
+            <div class="section-head">
+              <h3>Reversibility-aware gating</h3>
+              <span class="sub">Global rules that shape when prompts fire — independent of per-tool defaults above.</span>
+            </div>
+            <div class="card">
+              <div class="rule-card">
+                <div class="rule-info">
+                  <div class="rule-title">Auto-allow reversible, git-backed edits</div>
+                  <div class="rule-desc">File changes that land inside a git worktree are auto-approved and logged — they're reversible with one command. No prompt needed.</div>
+                </div>
+                <div class="toggle on"></div>
+              </div>
+              <div class="rule-card">
+                <div class="rule-info">
+                  <div class="rule-title">Always gate irreversible / destructive commands</div>
+                  <div class="rule-desc">Commands that delete, overwrite, or mutate state outside git's reach are always held for human review — regardless of per-tool defaults.</div>
+                </div>
+                <div style="display:flex;align-items:center;gap:var(--s2)">
+                  <div class="locked-badge"><svg class="i sm" style="color:var(--text-4)"><use href="#ic-lock"/></svg> locked</div>
+                  <div class="toggle on"></div>
+                </div>
+              </div>
+              <div class="rule-card">
+                <div class="rule-info">
+                  <div class="rule-title">Require type-to-confirm for high blast-radius actions</div>
+                  <div class="rule-desc">High-blast actions show a confirmation prompt requiring you to type the action name. Prevents muscle-memory approval of consequential steps.</div>
+                </div>
+                <div class="toggle on"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── Section 3: Blast-radius classes ── -->
+          <div>
+            <div class="section-head">
+              <h3>Blast-radius classes</h3>
+              <span class="sub">Three tiers — each maps to an approval burden proportional to consequence.</span>
+            </div>
+            <div class="blast-grid">
+              <div class="card blast-card">
+                <div class="tier-label low">Low</div>
+                <div class="tier-title">Reversible &amp; scoped</div>
+                <div class="tier-body">Action is git-backed or isolated to target/. Full rollback in one command. No external state mutated.</div>
+                <div class="tier-req"><svg class="i sm" style="color:var(--verified)"><use href="#ic-check"/></svg> Auto-allowed + logged</div>
+              </div>
+              <div class="card blast-card">
+                <div class="tier-label med">Med</div>
+                <div class="tier-title">External or persistent</div>
+                <div class="tier-body">Affects remote state (git push, network call) or persists beyond the run. Rollback requires coordinated effort.</div>
+                <div class="tier-req"><svg class="i sm" style="color:var(--review)"><use href="#ic-user"/></svg> 1 named approver</div>
+              </div>
+              <div class="card blast-card">
+                <div class="tier-label high">High</div>
+                <div class="tier-title">Irreversible or broad</div>
+                <div class="tier-body">Deletes outside git, drops DB rows, or affects unbounded scope. Loss cannot be recovered automatically. Self-approval forbidden.</div>
+                <div class="tier-req"><svg class="i sm" style="color:var(--danger)"><use href="#ic-warn"/></svg> Named role + type-to-confirm</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── Section 4: Capability tokens ── -->
+          <div>
+            <div class="section-head">
+              <h3>Capability tokens</h3>
+              <span class="sub">Active scoped, time-bounded grants for run #4127. Expire automatically; never implicit.</span>
+            </div>
+            <div class="card">
+              <div class="cap-head">
+                <span>Token</span>
+                <span>Scope</span>
+                <span>Granted by</span>
+                <span>Expires</span>
+              </div>
+              <div class="cap-list">
+                <div class="cap-row">
+                  <span class="cap-token">cap_fs.read</span>
+                  <span class="cap-scope">./crates/ainix-api/**</span>
+                  <span style="font-size:var(--t-xs);color:var(--text-3)">session policy · auto</span>
+                  <span class="cap-expires"><svg class="i sm"><use href="#ic-clock"/></svg> session</span>
+                </div>
+                <div class="cap-row">
+                  <span class="cap-token">cap_fs.write</span>
+                  <span class="cap-scope">./crates/ainix-api/**</span>
+                  <span style="font-size:var(--t-xs);color:var(--text-3)">plan approval · you</span>
+                  <span class="cap-expires"><svg class="i sm"><use href="#ic-clock"/></svg> session</span>
+                </div>
+                <div class="cap-row">
+                  <span class="cap-token">cap_fs.delete</span>
+                  <span class="cap-scope">./target/**</span>
+                  <span style="font-size:var(--t-xs);color:var(--text-3)">manual · you · 14:02</span>
+                  <span class="cap-expires" style="color:var(--review)"><svg class="i sm"><use href="#ic-clock"/></svg> 10 min</span>
+                </div>
+                <div class="cap-row">
+                  <span class="cap-token">cap_net.fetch</span>
+                  <span class="cap-scope">crates.io, static.crates.io</span>
+                  <span style="font-size:var(--t-xs);color:var(--text-3)">policy · cargo:update</span>
+                  <span class="cap-expires"><svg class="i sm"><use href="#ic-clock"/></svg> 30 min</span>
+                </div>
+                <div class="cap-row">
+                  <span class="cap-token">cap_cmd.cargo</span>
+                  <span class="cap-scope">test, build, update</span>
+                  <span style="font-size:var(--t-xs);color:var(--text-3)">session policy · auto</span>
+                  <span class="cap-expires"><svg class="i sm"><use href="#ic-clock"/></svg> session</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── Section 5: Plan → run → review bookend ── -->
+          <div>
+            <div class="section-head">
+              <h3>Plan → run → review bookend</h3>
+            </div>
+            <div class="card bookend-card">
+              <div class="bookend-info">
+                <div class="bookend-title">Approve the plan up front — let it run — review the result</div>
+                <div class="bookend-desc">When ON, the agent proposes its full plan before doing any work. You approve the shape of the run once; the agent executes; you review the outcome. Per-action prompts fire only for capability-escalating or irreversible steps that were not in the approved plan. Eliminates prompt chains for routine multi-step work.</div>
+                <div class="bookend-steps">
+                  <div class="bookend-step active"><svg class="i sm"><use href="#ic-eye"/></svg> Review plan</div>
+                  <span class="bookend-arrow">→</span>
+                  <div class="bookend-step active"><svg class="i sm"><use href="#ic-approve"/></svg> Approve once</div>
+                  <span class="bookend-arrow">→</span>
+                  <div class="bookend-step"><svg class="i sm"><use href="#ic-bolt"/></svg> Agent runs</div>
+                  <span class="bookend-arrow">→</span>
+                  <div class="bookend-step"><svg class="i sm"><use href="#ic-prov"/></svg> Verify outcome</div>
+                </div>
+              </div>
+              <div style="display:flex;flex-direction:column;align-items:center;gap:var(--s2);flex:none">
+                <div class="toggle on"></div>
+                <span style="font-size:var(--t-xs);color:var(--text-3)">enabled</span>
+              </div>
+            </div>
+          </div>
+
+        </div><!-- end policy-scroll -->
+      </div><!-- end scroll -->
+    </div><!-- end content -->
+  </div><!-- end body -->
+</div><!-- end window -->
+</body></html>
